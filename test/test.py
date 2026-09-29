@@ -7,34 +7,53 @@ from cocotb.triggers import ClockCycles
 
 
 @cocotb.test()
-async def test_project(dut):
+async def test_clkdiv_frequency(dut):
     dut._log.info("Start")
 
-    # Set the clock period to 10 us (100 KHz)
-    clock = Clock(dut.clk, 10, units="us")
-    cocotb.start_soon(clock.start())
+    cocotb.start_soon(Clock(dut.clk, 10, units="ns").start())
+
+    b = 8
+    c = 1
+
+    dut.ena.value = 1
+    dut.ui_in.value = b
+    dut.uio_in.value = c
 
     # Reset
-    dut._log.info("Reset")
-    dut.ena.value = 1
-    dut.ui_in.value = 0
-    dut.uio_in.value = 0
     dut.rst_n.value = 0
-    await ClockCycles(dut.clk, 10)
+    for _ in range(5):
+        await RisingEdge(dut.clk)
+
     dut.rst_n.value = 1
 
-    dut._log.info("Test project behavior")
+    cycles = 1800
+    rising_edges = 0
+    previous_q = 0
 
-    # Set the input values you want to test
-    dut.ui_in.value = 20
-    dut.uio_in.value = 30
+    for _ in range(cycles):
+        await RisingEdge(dut.clk)
+        await ReadOnly()
 
-    # Wait for one clock cycle to see the output values
-    await ClockCycles(dut.clk, 1)
+        q = int(dut.uo_out.value) & 1
 
-    # The following assersion is just an example of how to check the output values.
-    # Change it to match the actual expected output of your module:
-    assert dut.uo_out.value == 50
+        if previous_q == 0 and q == 1:
+            rising_edges += 1
+
+        previous_q = q
+
+    expected = cycles * c / (2 * (b + c))
+
+    dut._log.info(
+        f"Observed {rising_edges} rising edges; expected about {expected:.1f}"
+    )
+
+    # Allow a small error for startup phase and rounding.
+    assert abs(rising_edges - expected) <= 2
+
+
+
+
+    
 
     # Keep testing the module by changing the input values, waiting for
     # one or more clock cycles, and asserting the expected output values.

@@ -8,7 +8,7 @@ SRC_DIR = $(PWD)/../src
 # tinytracer_pkg.sv and tinytracer_if.sv must stay first: every other file uses them.
 PROJECT_SOURCES += tinytracer_pkg.sv
 PROJECT_SOURCES += tinytracer_if.sv
-PROJECT_SOURCES += tt_um_tinytracer.sv
+PROJECT_SOURCES += tt_um_clkdiv.sv
 PROJECT_SOURCES += accumulator.sv
 PROJECT_SOURCES += decode.sv
 PROJECT_SOURCES += reg_file.sv
