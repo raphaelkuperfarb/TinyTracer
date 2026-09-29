@@ -16,7 +16,7 @@ async def test_clkdiv_frequency(dut):
 
     dut.ena.value = 1
 
-    cases = [(4, 1), (4, 3), (5, 5), (7, 5), (10, 1)]
+    cases = [(4, 1), (4, 3), (5, 5), (7, 5), (10, 1), (126,1), (64, 63), (67, 16)]
 
     for b, c in cases:
         dut.ui_in.value = b
