@@ -4,7 +4,8 @@
 import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import ClockCycles
-
+from cocotb.triggers import RisingEdge
+from cocotb.triggers import ReadOnly
 
 @cocotb.test()
 async def test_clkdiv_frequency(dut):
