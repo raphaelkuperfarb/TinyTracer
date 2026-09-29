@@ -19,6 +19,7 @@ PROJECT_SOURCES += functional_units/fu_control.sv
 PROJECT_SOURCES += functional_units/multiplier.sv
 PROJECT_SOURCES += io/io.sv
 PROJECT_SOURCES += io/uart.sv
+PROJECT_SOURCES += io/clkdiv.sv
 PROJECT_SOURCES += rtu/intersection_unit.sv
 PROJECT_SOURCES += rtu/ray_gen/ray_generator.sv
 PROJECT_SOURCES += rtu/ray_gen/rng.sv
