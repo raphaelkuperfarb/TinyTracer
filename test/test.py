@@ -51,6 +51,7 @@ async def test_clkdiv_frequency(dut):
 
         assert abs(rising_edges - expected) <= 2
 
+@cocotb.test()
 async def test_clkdiv_reset(dut):
     dut._log.info("Start")
 
