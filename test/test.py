@@ -11,7 +11,7 @@ from cocotb.triggers import ReadOnly
 async def test_clkdiv_frequency(dut):
     dut._log.info("Start")
 
-    cocotb.start_soon(Clock(dut.clk, 10, units="ns").start())
+    cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start())
     
 
     dut.ena.value = 1
@@ -55,7 +55,7 @@ async def test_clkdiv_frequency(dut):
 async def test_clkdiv_reset(dut):
     dut._log.info("Start")
 
-    cocotb.start_soon(Clock(dut.clk, 10, units="ns").start())
+    cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start())
 
     b = 4
     c = 1
