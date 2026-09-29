@@ -12,44 +12,45 @@ async def test_clkdiv_frequency(dut):
     dut._log.info("Start")
 
     cocotb.start_soon(Clock(dut.clk, 10, units="ns").start())
-
-    b = 8
-    c = 1
+    
 
     dut.ena.value = 1
-    dut.ui_in.value = b
-    dut.uio_in.value = c
 
-    # Reset
-    dut.rst_n.value = 0
-    for _ in range(5):
-        await RisingEdge(dut.clk)
+    cases = [(4, 1), (4, 3), (5, 5), (7, 5), (10, 1)]
 
-    dut.rst_n.value = 1
+    for b, c in cases:
+        dut.ui_in.value = b
+        dut.uio_in.value = c
 
-    cycles = 1800
-    rising_edges = 0
-    previous_q = 0
+        # Reset
+        dut.rst_n.value = 0
+        for _ in range(5):
+            await RisingEdge(dut.clk)
 
-    for _ in range(cycles):
-        await RisingEdge(dut.clk)
-        await ReadOnly()
+        dut.rst_n.value = 1
 
-        q = int(dut.uo_out.value)
+        cycles = 1800
+        rising_edges = 0
+        previous_q = 0
 
-        if previous_q == 0 and q == 1:
-            rising_edges += 1
+        for _ in range(cycles):
+            await RisingEdge(dut.clk)
+            await ReadOnly()
 
-        previous_q = q
+            q = int(dut.uo_out.value)
 
-    expected = cycles * c / (2 * (b + c))
+            if previous_q == 0 and q == 1:
+                rising_edges += 1
 
-    dut._log.info(
-        f"Observed {rising_edges} rising edges; expected about {expected:.1f}"
-    )
+            previous_q = q
 
-    # Allow a small error for startup phase and rounding.
-    assert abs(rising_edges - expected) <= 2
+        expected = cycles * c / (2 * (b + c))
+
+        dut._log.info(
+            f"b={b}, c={c}: observed {rising_edges} rising edges; expected about {expected:.1f}"
+        )
+
+        assert abs(rising_edges - expected) <= 2
 
 
 
