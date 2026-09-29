@@ -35,7 +35,6 @@ async def test_clkdiv_frequency(dut):
 
         for _ in range(cycles):
             await RisingEdge(dut.clk)
-            await ReadOnly()
 
             q = int(dut.uo_out.value)
 
