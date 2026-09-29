@@ -13,7 +13,7 @@ async def test_clkdiv_frequency(dut):
 
     cocotb.start_soon(Clock(dut.clk, 10, units="ns").start())
 
-    b = 8
+    b = 4
     c = 1
 
     dut.ena.value = 1
@@ -49,7 +49,7 @@ async def test_clkdiv_frequency(dut):
     )
 
     # Allow a small error for startup phase and rounding.
-    assert abs(rising_edges - expected) <= 2
+    assert abs(rising_edges - expected) == 0
 
 
 
