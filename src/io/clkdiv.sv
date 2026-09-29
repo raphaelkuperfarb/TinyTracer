@@ -10,7 +10,7 @@ module clkdiv (
 );
 
 reg [7:0] sr;
-wire [7:0] d;
+reg [7:0] d;
 
 always @(posedge clk) begin
     if (!rst_n) begin
