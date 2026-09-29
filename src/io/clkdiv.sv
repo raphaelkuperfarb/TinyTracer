@@ -19,7 +19,7 @@ always @(posedge clk) begin
         e <= c;
         q <= ~q;
     end else e <= ~d + 1'b1;
-    sr <= sr + e
+    sr <= sr + e;
 end
 
 
