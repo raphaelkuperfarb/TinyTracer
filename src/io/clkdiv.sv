@@ -10,16 +10,17 @@ module clkdiv (
 );
 
 reg [7:0] sr;
+wire [7:0]d;
 
 always @(posedge clk) begin
     if (!rst_n) begin
-        e <= ~sr ; 
+        d <= ~sr ; 
         q <= 0;
     end else if (sr[7]) begin
-        e <= c;
+        e <= b;
         q <= ~q;
-    end else e <= ~d + 1'b1;
-    sr <= sr + e;
+    end else d <= ~c + 1'b1;
+    sr <= sr + d;
 end
 
 
