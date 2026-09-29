@@ -35,7 +35,7 @@ async def test_clkdiv_frequency(dut):
         await RisingEdge(dut.clk)
         await ReadOnly()
 
-        q = int(dut.uo_out.value) & 1
+        q = int(dut.uo_out.value)
 
         if previous_q == 0 and q == 1:
             rising_edges += 1
