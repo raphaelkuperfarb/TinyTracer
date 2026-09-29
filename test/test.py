@@ -51,10 +51,37 @@ async def test_clkdiv_frequency(dut):
 
         assert abs(rising_edges - expected) <= 2
 
+async def test_clkdiv_reset(dut):
+    dut._log.info("Start")
 
+    cocotb.start_soon(Clock(dut.clk, 10, units="ns").start())
+
+    b = 4
+    c = 1
+
+    dut.ena.value = 1
+    dut.ui_in.value = b
+    dut.uio_in.value = c
+
+    # Power-up reset
+    dut.rst_n.value = 0         
+    for _ in range(5):
+        await RisingEdge(dut.clk)
+        assert int(dut.uo_out.value) == 0, "q not 0 during initial reset"
+
+    dut.rst_n.value = 1
+
+    
+    await ClockCycles(dut.clk, 50)
+
+    
+    dut.rst_n.value = 0       
+    for _ in range(5):
+        await RisingEdge(dut.clk)
+        assert int(dut.uo_out.value) == 0, "q not 0 during reset"
+
+    dut.rst_n.value = 1
+    
 
 
     
-
-    # Keep testing the module by changing the input values, waiting for
-    # one or more clock cycles, and asserting the expected output values.
