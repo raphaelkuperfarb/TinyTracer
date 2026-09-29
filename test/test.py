@@ -64,8 +64,9 @@ async def test_clkdiv_reset(dut):
     dut.ui_in.value = b
     dut.uio_in.value = c
 
-    # Power-up reset
-    dut.rst_n.value = 0         
+    
+    dut.rst_n.value = 0    
+    await RisingEdge(dut.clk)     
     for _ in range(5):
         await RisingEdge(dut.clk)
         assert int(dut.uo_out.value) == 0, "q not 0 during initial reset"
@@ -76,7 +77,8 @@ async def test_clkdiv_reset(dut):
     await ClockCycles(dut.clk, 50)
 
     
-    dut.rst_n.value = 0       
+    dut.rst_n.value = 0 
+    await RisingEdge(dut.clk)      
     for _ in range(5):
         await RisingEdge(dut.clk)
         assert int(dut.uo_out.value) == 0, "q not 0 during reset"
