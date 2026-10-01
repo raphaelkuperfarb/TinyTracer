@@ -12,15 +12,26 @@ module clkdiv (
 reg [7:0] sr;
 reg [7:0] d;
 
+always @(*) begin
+    if (sr[7]) begin
+        d = b;
+    end else begin
+        d = -c;
+    end
+end
+
 always @(posedge clk) begin
     if (!rst_n) begin
-        d <= ~sr ; 
+        sr <= 0;
         q <= 0;
-    end else if (sr[7]) begin
-        d <= b;
-        q <= ~q;
-    end else d <= ~c + 1'b1;
-    sr <= sr + d;
+    end else  begin
+        sr <= sr + d;
+        if (sr[7]) begin
+            q <= ~q;
+        end
+    end
+        
+
 end
 
 
