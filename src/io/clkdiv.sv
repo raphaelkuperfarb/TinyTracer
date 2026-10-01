@@ -12,7 +12,7 @@ module clkdiv (
 reg [7:0] sr;
 wire [7:0] d;
 
-assign d = sr[7] ? b : -c;
+assign d = sr[7] ? b : c;
 
 always @(posedge clk) begin
     if (!rst_n) begin
