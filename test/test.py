@@ -16,7 +16,7 @@ async def test_clkdiv_frequency(dut):
 
     dut.ena.value = 1
 
-    cases = [(4, 1), (4, 3), (5, 5), (7, 5), (10, 1), (126,1), (64, 63), (67, 16)]
+    cases = [(4, -1), (4, -3), (5, -5), (7, -5), (10, -1), (126,-1), (64, -63), (67, -16)]
 
     for b, c in cases:
         dut.ui_in.value = b
@@ -43,7 +43,7 @@ async def test_clkdiv_frequency(dut):
 
             previous_q = q
 
-        expected = cycles * c / (2 * (b + c))
+        expected = cycles * c / (2 * (c - b))
 
         dut._log.info(
             f"b={b}, c={c}: observed {rising_edges} rising edges; expected about {expected:.1f}"
