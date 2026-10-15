@@ -59,24 +59,34 @@ parameter   IDLE = 3'b000,
 
 reg [2:0] current_state, next_state;
 reg [3:0] cycles_completed;
+reg [3:0] j;
 reg [15:0] x, y, z;
 reg [15:0] x_next, y_next, z_next;
+reg repeated;
+
 
 
 always @(posedge clk) begin
     if (!rst_n) begin
         current_state <= IDLE;
-        cycles_completed <= 0;
+        cycles_completed <= 4'b0;
+        repeated <= 1'b0;
+        j <= 1;
     end else begin
         current_state <= next_state;
-        if (next_state == LOOP) begin
-            if ((~cycles_completed[1] & cycles_completed[2] & ~(cycles_completed[3]^cycles_completed[0])) && opcode == 2'b11) // 4 or 13
-                cycles_completed <= cycles_completed;
-            else
-                cycles_completed <= cycles_completed + 1;
-            x <= x_next;
-            y <= y_next;
-            z <= z_next;
+        
+        x <= x_next;
+        y <= y_next;
+        z <= z_next;
+
+        cycles_completed <= cycles_completed + 1;
+        if (current_state == LOOP) begin
+            if ((~cycles_completed[1] & cycles_completed[2] & ~(cycles_completed[3]^cycles_completed[0])) && fu.req_opcode == 2'b11 && !repeated)  begin// 4 or 13
+                j <= j;
+                repeated <= 1'b1;
+            end else begin
+                j <=  j+1;
+                repeated <= 1'b0;
         end
     end
 end
@@ -94,6 +104,9 @@ always @(*) begin
 end    
 
 always @(*) begin
+    x_next = x;
+    y_next = y;
+    z_next = z;
     case(current_state)
         LOOP:
             if (fu.req_opcode[1:0] == 2'b00) begin
@@ -110,31 +123,31 @@ always @(*) begin
                 if (z[15]== 1'b1) begin
                     x_next = x + (y >>> cycles_completed);
                     y_next = y - (x >>> cycles_completed);
-                    z_next = z + ARCTAN_LUT[cycles_completed];
+                    z_next = z + ATAN_LUT[cycles_completed];
                 end else begin
                     x_next = x - (y >>> cycles_completed);
                     y_next = y + (x >>> cycles_completed);
-                    z_next = z - ARCTAN_LUT[cycles_completed];
+                    z_next = z - ATAN_LUT[cycles_completed];
                 end
             end else if (fu.req_opcode[1:0] == 2'b10) begin
                 if (y[15]== 1'b1) begin
                     x_next = x - (y >>> cycles_completed);
                     y_next = y + (x >>> cycles_completed);
-                    z_next = z - ARCTAN_LUT[cycles_completed];
+                    z_next = z - ATAN_LUT[cycles_completed];
                 end else begin
                     x_next = x + (y >>> cycles_completed);
                     y_next = y - (x >>> cycles_completed);
-                    z_next = z + ARCTAN_LUT[cycles_completed];
+                    z_next = z + ATAN_LUT[cycles_completed];
                 end
-            end else if (fu.req_opcode[1:0] = 2'b11) begin
+            end else if (fu.req_opcode[1:0] == 2'b11) begin
                 if (y[15]== 1'b1) begin
-                    x_next = x + (y >>> cycles_completed);
-                    y_next = y + (x >>> cycles_completed);
-                    z_next = z - ARCTANH_LUT[cycles_completed];
+                    x_next = x + (y >>> cycles_completed + 1);
+                    y_next = y + (x >>> cycles_completed + 1);
+                    z_next = z - ATANH_LUT[cycles_completed];
                 end else begin
-                    x_next = x - (y >>> cycles_completed);
-                    y_next = y - (x >>> cycles_completed);
-                    z_next = z + ARCTANH_LUT[cycles_completed];
+                    x_next = x - (y >>> j);
+                    y_next = y - (x >>> j);
+                    z_next = z + ATANH_LUT[j];
                 end
             end
 
