@@ -87,6 +87,7 @@ always @(posedge clk) begin
             end else begin
                 j <=  j+1;
                 repeated <= 1'b0;
+            end
         end
     end
 end
@@ -111,7 +112,6 @@ always @(*) begin
         LOOP:
             if (fu.req_opcode[1:0] == 2'b00) begin
                 fu.req_ready = 0;
-                x_next = x;
                 if (y[15]== 1'b1) begin
                     y_next = y + (x >>> cycles_completed);
                     z_next = z - (16'h4000 >>> cycles_completed);
@@ -147,7 +147,7 @@ always @(*) begin
                 end else begin
                     x_next = x - (y >>> j);
                     y_next = y - (x >>> j);
-                    z_next = z + ATANH_LUT[j-1] ;
+                    z_next = z + ATANH_LUT[j-1];
                 end
             end
 
