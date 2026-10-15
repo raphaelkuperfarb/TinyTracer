@@ -147,7 +147,7 @@ always @(*) begin
                 end else begin
                     x_next = x - (y >>> j);
                     y_next = y - (x >>> j);
-                    z_next = z + ATANH_LUT[j];
+                    z_next = z + ATANH_LUT[j-1] ;
                 end
             end
 
