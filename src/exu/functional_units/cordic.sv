@@ -267,31 +267,31 @@ always @(*) begin
                 if (z[15]== 1'b1) begin
                     x_next = x + (y >>> cycles_completed);
                     y_next = y - (x >>> cycles_completed);
-                    z_next = z + ATAN_LUT[({4'b0, cycles_completed} << 4) +: 16];
+                    z_next = z + ATAN_LUT[{cycles_completed, 4'b0} +: 16];
                 end else begin
                     x_next = x - (y >>> cycles_completed);
                     y_next = y + (x >>> cycles_completed);
-                    z_next = z - ATAN_LUT[({4'b0, cycles_completed} << 4) +: 16];
+                    z_next = z - ATAN_LUT[{cycles_completed, 4'b0} +: 16];
                 end
             end else if (opcode == 2'b11) begin
                 if (y[15]== 1'b1) begin
                     x_next = x - (y >>> cycles_completed);
                     y_next = y + (x >>> cycles_completed);
-                    z_next = z - ATAN_LUT[({4'b0, cycles_completed} << 4) +: 16];
+                    z_next = z - ATAN_LUT[{cycles_completed, 4'b0} +: 16];
                 end else begin
                     x_next = x + (y >>> cycles_completed);
                     y_next = y - (x >>> cycles_completed);
-                    z_next = z + ATAN_LUT[({4'b0, cycles_completed} << 4) +: 16];
+                    z_next = z + ATAN_LUT[{cycles_completed, 4'b0} +: 16];
                 end
             end else begin
                 if (y[15]== 1'b1) begin
                     x_next = x + (y >>> j);
                     y_next = y + (x >>> j);
-                    z_next = z - ATANH_LUT[({4'b0, (j - 4'd1)} << 4) +: 16];
+                    z_next = z - ATANH_LUT[{(j - 4'd1), 4'b0} +: 16];
                 end else begin
                     x_next = x - (y >>> j);
                     y_next = y - (x >>> j);
-                    z_next = z + ATANH_LUT[({4'b0, (j - 4'd1)} << 4) +: 16];
+                    z_next = z + ATANH_LUT[{(j - 4'd1), 4'b0} +: 16];
                 end
             end
         REVERT:
