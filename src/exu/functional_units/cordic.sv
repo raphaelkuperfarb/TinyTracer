@@ -164,7 +164,12 @@ always @(*) begin
     shift_right_next = shift_right_q;
     neg_next = neg_q;
     k = 4'b0;
+    l = 4'b0;
     tooBig = 1'b0;
+    ym = 16'sd0;
+    xp = 16'sd0;
+    angleShift = 1'b0;
+    normalized = x;
     postscale_product = 32'sd0;
     postscale_result = 32'sd0;
     case(current_state)
