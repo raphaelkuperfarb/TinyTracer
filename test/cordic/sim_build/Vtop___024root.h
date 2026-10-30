@@ -94,13 +94,13 @@ class alignas(VL_CACHE_LINE_BYTES) Vtop___024root final {
     static constexpr CData/*2:0*/ tt_um_cordic__DOT__u_cordic__DOT__REVERT = 6U;
     static constexpr CData/*2:0*/ tt_um_cordic__DOT__u_cordic__DOT__POSTSCALE = 4U;
     static constexpr IData/*31:0*/ tt_um_cordic__DOT__u_cordic__DOT__ITER = 0x00000010U;
-    static constexpr VlUnpacked<SData/*15:0*/, 16> tt_um_cordic__DOT__u_cordic__DOT__ATAN_LUT = {{
-        0x3244U, 0x1dacU, 0x0faeU, 0x07f5U, 0x03ffU, 0x0200U, 0x0100U, 0x0080U,
-        0x0040U, 0x0020U, 0x0010U, 8U, 4U, 2U, 1U, 1U
+    static constexpr VlWide<8>/*255:0*/ tt_um_cordic__DOT__u_cordic__DOT__ATAN_LUT = VlWide<8>{{
+            0x1dac3244, 0x07f50fae, 0x020003ff, 0x00800100,
+            0x00200040, 0x00080010, 0x00020004, 0x00010001
     }};
-    static constexpr VlUnpacked<SData/*15:0*/, 16> tt_um_cordic__DOT__u_cordic__DOT__ATANH_LUT = {{
-        0x2328U, 0x1059U, 0x080bU, 0x0401U, 0x0200U, 0x0100U, 0x0080U, 0x0040U,
-        0x0020U, 0x0010U, 8U, 4U, 2U, 1U, 1U, 1U
+    static constexpr VlWide<8>/*255:0*/ tt_um_cordic__DOT__u_cordic__DOT__ATANH_LUT = VlWide<8>{{
+            0x10592328, 0x0401080b, 0x01000200, 0x00400080,
+            0x00100020, 0x00040008, 0x00010002, 0x00010001
     }};
 
     // CONSTRUCTORS
