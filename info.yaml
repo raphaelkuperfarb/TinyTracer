@@ -11,7 +11,7 @@ project:
   tiles: "4x2"          # Valid values: 1x1, 1x2, 2x2, 3x2, 4x2, 6x2 or 8x2
 
   # Your top module name must start with "tt_um_". Make it unique by including your github username:
-  top_module:  "tt_um_tinytracer"
+  top_module:  "tt_um_cordic"
 
   # List your project's source files here.
   # Source files must be in ./src and you must list each source file separately, one per line.
@@ -19,26 +19,8 @@ project:
   source_files:
     - "tinytracer_pkg.sv"
     - "tinytracer_if.sv"
-    - "tt_um_tinytracer.sv"
     - "tt_um_cordic.sv"
-    - "accumulator.sv"
-    - "sram_control.sv"
-    - "scene_sram.sv"
-    - "exu/exu.sv"
-    - "exu/decode.sv"
-    - "exu/reg_file.sv"
-    - "exu/functional_units/alu.sv"
     - "exu/functional_units/cordic.sv"
-    - "exu/functional_units/fu_control.sv"
-    - "exu/functional_units/multiplier.sv"
-    - "io/io.sv"
-    - "io/uart.sv"
-    - "io/clkdiv.sv"
-    - "rtu/intersection_unit.sv"
-    - "rtu/ray_gen/ray_generator.sv"
-    - "rtu/ray_gen/rng.sv"
-    - "rtu/rtu.sv"
-    - "rtu/shader_core.sv"
 
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
 pinout:
