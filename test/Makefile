@@ -9,6 +9,7 @@ SRC_DIR = $(PWD)/../src
 PROJECT_SOURCES += tinytracer_pkg.sv
 PROJECT_SOURCES += tinytracer_if.sv
 PROJECT_SOURCES += tt_um_tinytracer.sv
+PROJECT_SOURCES += tt_um_cordic.sv
 PROJECT_SOURCES += accumulator.sv
 PROJECT_SOURCES += sram_control.sv
 PROJECT_SOURCES += scene_sram.sv

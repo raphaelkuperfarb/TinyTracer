@@ -20,6 +20,7 @@ project:
     - "tinytracer_pkg.sv"
     - "tinytracer_if.sv"
     - "tt_um_tinytracer.sv"
+    - "tt_um_cordic.sv"
     - "accumulator.sv"
     - "sram_control.sv"
     - "scene_sram.sv"

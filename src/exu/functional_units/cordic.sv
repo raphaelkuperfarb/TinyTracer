@@ -63,7 +63,7 @@ reg [3:0] j;
 reg signed [15:0] x, y, z;
 reg signed [15:0] x_next, y_next, z_next;
 reg repeated;
-wire start
+wire start;
 reg [3:0] k, l, shift_next, shift_q;
 reg shift_right_next, shift_right_q;
 reg tooBig;
@@ -214,7 +214,7 @@ always @(*) begin
                     end
                 end
             end else if (opcode == 2'b10) begin
-                angleShift = (z > 16'sh6F92 || z < 16'sh906E)
+                angleShift = (z > 16'sh6F92 || z < 16'sh906E);
                 if (angleShift) 
                     z_next = z + (z[15] ? 17'h0C910 : 17'h136F0);
             end else if (opcode == 2'b11) begin
@@ -222,6 +222,7 @@ always @(*) begin
                 y_next = y[15]? -y:y ;
             end else if (opcode == 2'b01) begin
                 tooBig = |x[14:8];
+                normalized = x;
                     if (((tooBig | (~x[6] & ~x[7])) & ~format) 
                         | ((~x[13] & ~x[14]) & format)) begin //under 0.5 or over 2
                         for (int i = 0; i < 15; i++) begin
@@ -232,21 +233,22 @@ always @(*) begin
                             shift_next = k[0] ? 13-k : 14-k;
                             shift_right_next = 1'b0;
                             normalized = x <<< shift_next;
-                            x_next = normalized + 16'h1000;
-                            y_next = normalized - 16'h1000;
                         end else if (tooBig) begin
                             shift_next = k - (k[0] ? 7 : 6);
                             shift_right_next = 1'b1;
                             normalized = x >>> shift_next;
-                            x_next = normalized + 16'h0020;
-                            y_next = normalized - 16'h0020;
                         end else begin
                             shift_next = (k[0] ? 7 : 6) - k;
                             shift_right_next = 1'b0;
                             normalized = x <<< shift_next;
-                            x_next = normalized + 16'h0020;
-                            y_next = normalized - 16'h0020;
                         end
+                    end
+                    if (format) begin
+                        x_next = normalized + 16'h1000;
+                        y_next = normalized - 16'h1000;
+                    end else begin
+                        x_next = normalized + 16'h0020;
+                        y_next = normalized - 16'h0020;
                     end
                 end
             end
@@ -293,12 +295,12 @@ always @(*) begin
         REVERT:
         begin
             if (opcode ==  2'b00) begin
-                z_next = z <<< shift_next;
+                z_next = z <<< shift_q;
             end else if (opcode == 2'b10) begin
                 x_next = angleShift? -x : x;
                 y_next = angleShift? -y : y;
             end else if (opcode == 2'b01) begin
-                z_next = z <<< (shift_next >>> 1'b1);
+                x_next = shift_right_q? x <<< ((shift_q) >>> 1'b1) : x >>> ((shift_q) >>> 1'b1);
             end
         end
         POSTSCALE:
