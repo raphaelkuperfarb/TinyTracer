@@ -24,7 +24,7 @@ module tb ();
   wire [7:0] uio_oe;
 
   // The IHP gate-level netlist has no power ports, unlike sky130's.
-  tt_um_tinytracer user_project (
+  tt_um_cordic user_project (
       .ui_in  (ui_in),    // Dedicated inputs
       .uo_out (uo_out),   // Dedicated outputs
       .uio_in (uio_in),   // IOs: Input path
