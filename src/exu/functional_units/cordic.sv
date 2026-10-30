@@ -336,6 +336,14 @@ always @(*) begin
                 else
                     x_next = postscale_result[15:0];
             end
+
+            fu.resp_done = 1'b1;
+            case (opcode)
+                2'b00: fu.resp_result = z;
+                2'b01: fu.resp_result = x_next;
+                2'b10: fu.resp_result = x;
+                2'b11: fu.resp_result = x_next;
+            endcase
         end
         
 
