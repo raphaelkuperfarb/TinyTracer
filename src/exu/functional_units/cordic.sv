@@ -10,43 +10,45 @@ module cordic #(
     fu_if.server        fu
 );
 
-localparam [15:0] ATAN_LUT [0:15] = '{
-    16'h3244,  // i=0   atan(2^-0)  = 0.785398
-    16'h1DAC,  // i=1   0.463648
-    16'h0FAE,  // i=2   0.244979
-    16'h07F5,  // i=3   0.124355
-    16'h03FF,  // i=4   0.062419
-    16'h0200,  // i=5   0.031240
-    16'h0100,  // i=6   0.015624
-    16'h0080,  // i=7   0.007812
-    16'h0040,  // i=8   0.003906
-    16'h0020,  // i=9   0.001953
-    16'h0010,  // i=10  0.000977
-    16'h0008,  // i=11  0.000488
-    16'h0004,  // i=12  0.000244
-    16'h0002,  // i=13  0.000122
-    16'h0001,  // i=14  0.000061
-    16'h0001   // i=15  0.0000305
+// Packed tables keep the original LUT values while avoiding unpacked
+// parameter arrays, which the GDS Yosys frontend does not parse here.
+// Entries are concatenated in reverse index order so index 0 is the low word.
+localparam [255:0] ATAN_LUT = {
+    16'h0001,
+    16'h0001,
+    16'h0002,
+    16'h0004,
+    16'h0008,
+    16'h0010,
+    16'h0020,
+    16'h0040,
+    16'h0080,
+    16'h0100,
+    16'h0200,
+    16'h03FF,
+    16'h07F5,
+    16'h0FAE,
+    16'h1DAC,
+    16'h3244
 };
 
-
-localparam [15:0] ATANH_LUT [0:15] = '{
-    16'h2328,
-    16'h1059,
-    16'h080B, 
-    16'h0401,
-    16'h0200,
-    16'h0100,
-    16'h0080,
-    16'h0040,
-    16'h0020,
-    16'h0010,
-    16'h0008,
+localparam [255:0] ATANH_LUT = {
+    16'h0001,
+    16'h0001,
+    16'h0001,
+    16'h0002,
     16'h0004,
-    16'h0002, 
-    16'h0001,
-    16'h0001,
-    16'h0001
+    16'h0008,
+    16'h0010,
+    16'h0020,
+    16'h0040,
+    16'h0080,
+    16'h0100,
+    16'h0200,
+    16'h0401,
+    16'h080B,
+    16'h1059,
+    16'h2328
 };
 
 parameter   IDLE = 3'b000,
@@ -265,31 +267,31 @@ always @(*) begin
                 if (z[15]== 1'b1) begin
                     x_next = x + (y >>> cycles_completed);
                     y_next = y - (x >>> cycles_completed);
-                    z_next = z + ATAN_LUT[cycles_completed];
+                    z_next = z + ATAN_LUT[({4'b0, cycles_completed} << 4) +: 16];
                 end else begin
                     x_next = x - (y >>> cycles_completed);
                     y_next = y + (x >>> cycles_completed);
-                    z_next = z - ATAN_LUT[cycles_completed];
+                    z_next = z - ATAN_LUT[({4'b0, cycles_completed} << 4) +: 16];
                 end
             end else if (opcode == 2'b11) begin
                 if (y[15]== 1'b1) begin
                     x_next = x - (y >>> cycles_completed);
                     y_next = y + (x >>> cycles_completed);
-                    z_next = z - ATAN_LUT[cycles_completed];
+                    z_next = z - ATAN_LUT[({4'b0, cycles_completed} << 4) +: 16];
                 end else begin
                     x_next = x + (y >>> cycles_completed);
                     y_next = y - (x >>> cycles_completed);
-                    z_next = z + ATAN_LUT[cycles_completed];
+                    z_next = z + ATAN_LUT[({4'b0, cycles_completed} << 4) +: 16];
                 end
             end else begin
                 if (y[15]== 1'b1) begin
                     x_next = x + (y >>> j);
                     y_next = y + (x >>> j);
-                    z_next = z - ATANH_LUT[j-1];
+                    z_next = z - ATANH_LUT[({4'b0, (j - 4'd1)} << 4) +: 16];
                 end else begin
                     x_next = x - (y >>> j);
                     y_next = y - (x >>> j);
-                    z_next = z + ATANH_LUT[j-1];
+                    z_next = z + ATANH_LUT[({4'b0, (j - 4'd1)} << 4) +: 16];
                 end
             end
         REVERT:
