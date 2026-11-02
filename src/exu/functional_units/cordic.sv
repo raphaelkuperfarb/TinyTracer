@@ -10,9 +10,7 @@ module cordic #(
     fu_if.server        fu
 );
 
-// Packed tables keep the original LUT values while avoiding unpacked
-// parameter arrays, which the GDS Yosys frontend does not parse here.
-// Entries are concatenated in reverse index order so index 0 is the low word.
+
 localparam [255:0] ATAN_LUT = {
     16'h0001,
     16'h0001,
@@ -46,7 +44,9 @@ reg [3:0] cycles_completed;
 reg [4:0] j;
 reg signed [15:0] x, y, z;
 reg signed [15:0] x_next, y_next, z_next;
-reg signed [15:0] x_shifted, y_shifted, one_shifted;
+reg signed [15:0] negative_x, negative_y;
+reg signed [15:0] x_shifted, y_shifted;
+reg [15:0] one_shifted;
 reg signed [15:0] x_minus_yshifted, x_plus_yshifted;
 reg signed [15:0] y_minus_xshifted, y_plus_xshifted;
 reg repeated;
@@ -76,6 +76,7 @@ always @(posedge clk) begin
         x <= 16'sd0;
         y <= 16'sd0;
         z <= 16'sd0;
+        one_shifted <= 16'h4000;
         neg_q <= 1'b0;
     end else begin
         current_state <= next_state;
@@ -90,6 +91,7 @@ always @(posedge clk) begin
         if (current_state == IDLE && start) begin
             opcode <= fu.req_opcode[1:0];
             format <= fu.req_fmt;
+            one_shifted <= 16'h4000;
             cycles_completed <= 4'b0;
             repeated <= 1'b0;
             j <= 4'b0001;
@@ -97,6 +99,7 @@ always @(posedge clk) begin
             shift_right_q <= 1'b0;
             neg_q <= 1'b0;
         end else if (current_state == LOOP) begin
+            one_shifted <= one_shifted >> 1;
             cycles_completed <= cycles_completed + 1;
             if ((~j[1] & j[2] & ~(j[3]^j[0])) 
                 && opcode == 2'b01 && !repeated)  begin// 4 or 13
@@ -152,6 +155,8 @@ always @(*) begin
     x_next = x;
     y_next = y;
     z_next = z;
+    negative_x = -x;
+    negative_y = -y;
     shift_next = shift_q;
     shift_right_next = shift_right_q;
     neg_next = neg_q;
@@ -164,7 +169,6 @@ always @(*) begin
     normalized = x;
     x_shifted = 16'sd0;
     y_shifted = 16'sd0;
-    one_shifted = 16'sd0;
     x_minus_yshifted = 16'sd0;
     x_plus_yshifted = 16'sd0;
     y_minus_xshifted = 16'sd0;
@@ -198,7 +202,7 @@ always @(*) begin
         begin
             if (opcode == 2'b00 || opcode == 2'b01) begin
                 neg_next = x[15];
-                xp = neg_next ? -x : x;
+                xp = neg_next ? negative_x : x;
                 for (int i = 0; i < 15; i++) begin
                     if (xp[i]) 
                         k = i;
@@ -225,13 +229,13 @@ always @(*) begin
                 if (angleShift) 
                     z_next = z + (z[15] ? 17'h0C910 : 17'h136F0);
             end else if (opcode == 2'b11) begin
-                x_next = x[15]? -x:x ;
-                y_next = y[15]? -y:y ;
+                x_next = x[15] ? negative_x : x;
+                y_next = y[15] ? negative_y : y;
             end else if (opcode == 2'b01) begin
                 tooBig = |x[14:8];
                 normalized = x;
-                    if (((tooBig | (~x[6] & ~x[7])) & ~format) 
-                        | ((~x[13] & ~x[14]) & format)) begin //under 0.5 or over 2
+                    if (((tooBig | ~(x[6] | x[7])) & ~format) 
+                        | (~(x[13] | x[14]) & format)) begin //under 0.5 or over 2
                         if (format) begin
                             shift_next = k[0] ? 13-k : 14-k;
                             shift_right_next = 1'b0;
@@ -259,7 +263,6 @@ always @(*) begin
         begin
             x_shifted = (x >>> cycles_completed);
             y_shifted = (y >>> cycles_completed);
-            one_shifted = (16'h4000 >>> cycles_completed);
             x_minus_yshifted = x - y_shifted;
             x_plus_yshifted = x + y_shifted;
             y_minus_xshifted = y - x_shifted;
@@ -294,12 +297,12 @@ always @(*) begin
                     z_next = z + ATAN_LUT[{cycles_completed, 4'b0} +: 16];
                 end
             end else begin
-                if (y[15]== 1'b1) begin
-                    x_next = x - ((-y) >>> j);
-                    y_next = y - ((-x) >>> j);
+                if (y[15] == 1'b1) begin
+                    x_next = x - (negative_y >>> j);
+                    y_next = y + (x >>> j);
                 end else begin
-                    x_next = x + ((-y) >>> j);
-                    y_next = y + ((-x) >>> j);
+                    x_next = x - (y >>> j);
+                    y_next = y - (x >>> j);
                 end
             end
         end
@@ -308,10 +311,10 @@ always @(*) begin
             if (opcode ==  2'b00) begin
                 z_next = z <<< shift_q;
             end else if (opcode == 2'b10) begin
-                x_next = angleShift? -x : x;
-                y_next = angleShift? -y : y;
+                x_next = angleShift ? negative_x : x;
+                y_next = angleShift ? negative_y : y;
             end else if (opcode == 2'b01) begin
-                x_next = shift_right_q? x <<< ((shift_q) >>> 1'b1) : x >>> ((shift_q) >>> 1'b1);
+                x_next = shift_right_q? x <<< ((shift_q) >>> 1) : x >>> ((shift_q) >>> 1);
             end
         end
         POSTSCALE:

@@ -107,6 +107,11 @@ async def cordic_operations(dut):
         0x0800,
         0x0FFF, 0x1000, 0x1001,  # around 32.0; exercises right normalization
         0x00AB, 0x0155, 0x02AB, 0x0555,  # irregular binary patterns
+        0x1FFF, 0x2000, 0x2001,  # around 64.0
+        0x2AAB,  # irregular pattern above 64.0
+        0x3FFF, 0x4000, 0x4001,  # around 128.0
+        0x5555,  # irregular pattern above 128.0
+        0x7FFD, 0x7FFE, 0x7FFF,  # largest positive POS inputs
     ]:
         root = math.sqrt(signed16(value) / q7)
         cases.append((0b01, value, 0x0000, round(root * q7), 8, 7, 0))
