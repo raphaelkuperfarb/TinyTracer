@@ -13,7 +13,6 @@ constexpr CData/*2:0*/ Vtop___024root::tt_um_cordic__DOT__u_cordic__DOT__REVERT;
 constexpr CData/*2:0*/ Vtop___024root::tt_um_cordic__DOT__u_cordic__DOT__POSTSCALE;
 constexpr IData/*31:0*/ Vtop___024root::tt_um_cordic__DOT__u_cordic__DOT__ITER;
 constexpr VlWide<8>/*255:0*/ Vtop___024root::tt_um_cordic__DOT__u_cordic__DOT__ATAN_LUT;
-constexpr VlWide<8>/*255:0*/ Vtop___024root::tt_um_cordic__DOT__u_cordic__DOT__ATANH_LUT;
 
 
 void Vtop___024root___ctor_var_reset(Vtop___024root* vlSelf);

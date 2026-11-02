@@ -270,6 +270,13 @@ VL_ATTR_COLD void Vtop___024root___ctor_var_reset(Vtop___024root* vlSelf) {
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__x_next = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 1950631406285961407ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__y_next = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 5027848173128669451ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__z_next = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 9989597036133135168ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__x_shifted = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 5254532176598006786ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__y_shifted = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 15401178111684781802ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__one_shifted = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 7557764306946152525ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__x_minus_yshifted = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 17113075032349106938ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__x_plus_yshifted = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 10983915365917513103ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__y_minus_xshifted = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 13121532293998835980ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__y_plus_xshifted = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 4714765325999326400ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__repeated = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6886207335721660554ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__start = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 16246185796468183869ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__k = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 16482008820845747630ull);

@@ -46,6 +46,9 @@ reg [3:0] cycles_completed;
 reg [4:0] j;
 reg signed [15:0] x, y, z;
 reg signed [15:0] x_next, y_next, z_next;
+reg signed [15:0] x_shifted, y_shifted, one_shifted;
+reg signed [15:0] x_minus_yshifted, x_plus_yshifted;
+reg signed [15:0] y_minus_xshifted, y_plus_xshifted;
 reg repeated;
 wire start;
 reg [3:0] k, l, shift_next, shift_q;
@@ -159,6 +162,13 @@ always @(*) begin
     xp = 16'sd0;
     angleShift = 1'b0;
     normalized = x;
+    x_shifted = 16'sd0;
+    y_shifted = 16'sd0;
+    one_shifted = 16'sd0;
+    x_minus_yshifted = 16'sd0;
+    x_plus_yshifted = 16'sd0;
+    y_minus_xshifted = 16'sd0;
+    y_plus_xshifted = 16'sd0;
     postscale_product = 32'sd0;
     postscale_result = 32'sd0;
     case(current_state)
@@ -246,32 +256,41 @@ always @(*) begin
                 end
             end
         LOOP:
+        begin
+            x_shifted = (x >>> cycles_completed);
+            y_shifted = (y >>> cycles_completed);
+            one_shifted = (16'h4000 >>> cycles_completed);
+            x_minus_yshifted = x - y_shifted;
+            x_plus_yshifted = x + y_shifted;
+            y_minus_xshifted = y - x_shifted;
+            y_plus_xshifted = y + x_shifted;
+
             if (opcode == 2'b00) begin
                 if (y[15]== 1'b1) begin
-                    y_next = y + (x >>> cycles_completed);
-                    z_next = z - (16'h4000 >>> cycles_completed);
+                    y_next = y_plus_xshifted;
+                    z_next = z - one_shifted;
                 end else begin
-                    y_next = y - (x >>> cycles_completed);
-                    z_next = z + (16'h4000 >>> cycles_completed);
+                    y_next = y_minus_xshifted;
+                    z_next = z + one_shifted;
                 end
             end else if (opcode == 2'b10) begin
                 if (z[15]== 1'b1) begin
-                    x_next = x + (y >>> cycles_completed);
-                    y_next = y - (x >>> cycles_completed);
+                    x_next = x_plus_yshifted;
+                    y_next = y_minus_xshifted;
                     z_next = z + ATAN_LUT[{cycles_completed, 4'b0} +: 16];
                 end else begin
-                    x_next = x - (y >>> cycles_completed);
-                    y_next = y + (x >>> cycles_completed);
+                    x_next = x_minus_yshifted;
+                    y_next = y_plus_xshifted;
                     z_next = z - ATAN_LUT[{cycles_completed, 4'b0} +: 16];
                 end
             end else if (opcode == 2'b11) begin
                 if (y[15]== 1'b1) begin
-                    x_next = x - (y >>> cycles_completed);
-                    y_next = y + (x >>> cycles_completed);
+                    x_next = x_minus_yshifted;
+                    y_next = y_plus_xshifted;
                     z_next = z - ATAN_LUT[{cycles_completed, 4'b0} +: 16];
                 end else begin
-                    x_next = x + (y >>> cycles_completed);
-                    y_next = y - (x >>> cycles_completed);
+                    x_next = x_plus_yshifted;
+                    y_next = y_minus_xshifted;
                     z_next = z + ATAN_LUT[{cycles_completed, 4'b0} +: 16];
                 end
             end else begin
@@ -283,6 +302,7 @@ always @(*) begin
                     y_next = y + ((-x) >>> j);
                 end
             end
+        end
         REVERT:
         begin
             if (opcode ==  2'b00) begin
@@ -296,47 +316,30 @@ always @(*) begin
         end
         POSTSCALE:
         begin
-            if (opcode == 2'b11) begin
-                // Magnitude gain correction: 0.60725 ~= 9945 / 2^14.
+            // Magnitude gain correction: 0.60725 ~= 9945 / 2^14. Square-root gain correction: 1.2075 ~= 19784 / 2^14.
+            if (opcode == 2'b11 || opcode == 2'b01) begin
                 postscale_product =
-                    ({16'b0, x} <<< 13)
-                  + ({16'b0, x} <<< 11)
-                  - ({16'b0, x} <<< 8)
-                  - ({16'b0, x} <<< 5)
-                  - ({16'b0, x} <<< 3)
-                  +  {16'b0, x};
-                postscale_result = postscale_product >>> 14;
+                       (opcode == 2'b11 ? ({16'b0, x} <<< 13) : ({16'b0, x} <<< 14))
+                    +  (opcode == 2'b11 ? ({16'b0, x} <<< 11) : ({16'b0, x} <<< 12))
+                    -  (opcode == 2'b11 ? ({16'b0, x} <<< 8) : ({16'b0, x} <<< 9))
+                    -  (opcode == 2'b11 ? ({16'b0, x} <<< 5) : ({16'b0, x} <<< 7))
+                    -  (opcode == 2'b11 ? ({16'b0, x} <<< 3) : ({16'b0, x} <<< 6))
+                    +  (opcode == 2'b11 ? {16'b0, x} : ({16'b0, x} <<< 3));
+                    postscale_result = postscale_product >>> 14;
                 if (postscale_result > 32'sd32767)
                     x_next = 16'h7FFF;
                 else if (postscale_result < -32'sd32768)
                     x_next = 16'h8000;
                 else
                     x_next = postscale_result[15:0];
-            end else if (opcode == 2'b01) begin
-                // Square-root gain correction: 1.2075 ~= 19784 / 2^14.
-                postscale_product =
-                    ({16'b0, x} <<< 14)
-                  + ({16'b0, x} <<< 12)
-                  - ({16'b0, x} <<< 9)
-                  - ({16'b0, x} <<< 7)
-                  - ({16'b0, x} <<< 6)
-                  + ({16'b0, x} <<< 3);
-                postscale_result = postscale_product >>> 14;
-                if (postscale_result > 32'sd32767)
-                    x_next = 16'h7FFF;
-                else if (postscale_result < -32'sd32768)
-                    x_next = 16'h8000;
-                else
-                    x_next = postscale_result[15:0];
+                fu.resp_result = x_next;
+            end else if (opcode == 2'b00) begin
+                fu.resp_result = z;
+            end else begin
+                fu.resp_result = x;
             end
 
             fu.resp_done = 1'b1;
-            case (opcode)
-                2'b00: fu.resp_result = z;
-                2'b01: fu.resp_result = x_next;
-                2'b10: fu.resp_result = x;
-                2'b11: fu.resp_result = x_next;
-            endcase
         end
         
 
