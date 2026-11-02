@@ -48,7 +48,7 @@ void Vtop___024root__trace_chg_0_sub_0(Vtop___024root* vlSelf, VerilatedVcd::Buf
     bufp->chgCData(oldp+23,(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__current_state),3);
     bufp->chgCData(oldp+24,(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__next_state),3);
     bufp->chgCData(oldp+25,(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__cycles_completed),4);
-    bufp->chgCData(oldp+26,(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__j),4);
+    bufp->chgCData(oldp+26,(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__j),5);
     bufp->chgSData(oldp+27,(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__x),16);
     bufp->chgSData(oldp+28,(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__y),16);
     bufp->chgSData(oldp+29,(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__z),16);

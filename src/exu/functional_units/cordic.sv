@@ -32,24 +32,6 @@ localparam [255:0] ATAN_LUT = {
     16'h3244
 };
 
-localparam [255:0] ATANH_LUT = {
-    16'h0001,
-    16'h0001,
-    16'h0001,
-    16'h0002,
-    16'h0004,
-    16'h0008,
-    16'h0010,
-    16'h0020,
-    16'h0040,
-    16'h0080,
-    16'h0100,
-    16'h0200,
-    16'h0401,
-    16'h080B,
-    16'h1059,
-    16'h2328
-};
 
 parameter   IDLE = 3'b000,
             INIT = 3'b001,
@@ -61,7 +43,7 @@ parameter   IDLE = 3'b000,
 
 reg [2:0] current_state, next_state;
 reg [3:0] cycles_completed;
-reg [3:0] j;
+reg [4:0] j;
 reg signed [15:0] x, y, z;
 reg signed [15:0] x_next, y_next, z_next;
 reg repeated;
@@ -84,7 +66,7 @@ always @(posedge clk) begin
         current_state <= IDLE;
         cycles_completed <= 4'b0;
         repeated <= 1'b0;
-        j <= 4'b0001;
+        j <= 5'b00001;
         shift_q <= 4'b0;
         shift_right_q <= 1'b0;
         opcode <= 2'b00;
@@ -113,7 +95,7 @@ always @(posedge clk) begin
             neg_q <= 1'b0;
         end else if (current_state == LOOP) begin
             cycles_completed <= cycles_completed + 1;
-            if ((~cycles_completed[1] & cycles_completed[2] & ~(cycles_completed[3]^cycles_completed[0])) 
+            if ((~j[1] & j[2] & ~(j[3]^j[0])) 
                 && opcode == 2'b01 && !repeated)  begin// 4 or 13
                 j <= j;
                 repeated <= 1'b1;
@@ -141,10 +123,17 @@ always @(*) begin
             next_state = LOOP;
         LOOP:
         begin
-            if (cycles_completed == ITER-1) 
-                next_state = REVERT;
-            else
-                next_state = LOOP;
+            if (opcode == 2'b01) begin
+                if (j == ITER)
+                    next_state = REVERT;
+                else
+                    next_state = LOOP;
+            end else begin
+                if (cycles_completed == ITER - 1)
+                    next_state = REVERT;
+                else
+                    next_state = LOOP;
+end
         end
         REVERT:
             next_state = POSTSCALE;
@@ -197,15 +186,16 @@ always @(*) begin
         end
         NORMALIZE:
         begin
-            if (opcode == 2'b00) begin
+            if (opcode == 2'b00 || opcode == 2'b01) begin
                 neg_next = x[15];
-                ym = y[15] ? ~y : y;
                 xp = neg_next ? -x : x;
-                k = 0; l = 0;
                 for (int i = 0; i < 15; i++) begin
-                    if (xp[i])  
+                    if (xp[i]) 
                         k = i;
                 end
+            end
+            if (opcode == 2'b00) begin
+                ym = y[15] ? ~y : y;
                 for (int h = 0; h < 15; h++) begin
                     if (y[h]) 
                         l = h;
@@ -232,10 +222,6 @@ always @(*) begin
                 normalized = x;
                     if (((tooBig | (~x[6] & ~x[7])) & ~format) 
                         | ((~x[13] & ~x[14]) & format)) begin //under 0.5 or over 2
-                        for (int i = 0; i < 15; i++) begin
-                            if (x[i]) 
-                                k = i;
-                        end
                         if (format) begin
                             shift_next = k[0] ? 13-k : 14-k;
                             shift_right_next = 1'b0;
@@ -290,13 +276,11 @@ always @(*) begin
                 end
             end else begin
                 if (y[15]== 1'b1) begin
-                    x_next = x + (y >>> j);
-                    y_next = y + (x >>> j);
-                    z_next = z - ATANH_LUT[{(j - 4'd1), 4'b0} +: 16];
+                    x_next = x - ((-y) >>> j);
+                    y_next = y - ((-x) >>> j);
                 end else begin
-                    x_next = x - (y >>> j);
-                    y_next = y - (x >>> j);
-                    z_next = z + ATANH_LUT[{(j - 4'd1), 4'b0} +: 16];
+                    x_next = x + ((-y) >>> j);
+                    y_next = y + ((-x) >>> j);
                 end
             end
         REVERT:

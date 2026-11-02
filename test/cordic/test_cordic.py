@@ -43,8 +43,10 @@ async def run_operation(
             result = (int(dut.uio_out.value) << 8) | int(dut.uo_out.value)
             signed_result = signed16(result)
             scale = 1 << fractional_bits
+            format_name = "POS Q9.7" if fmt == 0 else "DIR Q2.14"
             dut._log.info(
-                f"opcode={opcode} A={signed16(op1) / scale:.6f} "
+                f"opcode={opcode} format={format_name} "
+                f"A={signed16(op1) / scale:.6f} "
                 f"B={signed16(op2) / scale:.6f} "
                 f"result={signed_result / scale:.6f} "
                 f"expected={expected / scale:.6f}"
@@ -84,23 +86,65 @@ async def cordic_operations(dut):
         (0x4000, 0x4000),  # 1 / 1
         (0x3000, 0x4000),  # 0.75 / 1
         (0x2000, 0x4000),  # 0.5 / 1
+        (0x5000, 0x4000),  # 1.25 / 1: numerator > denominator
+        (0x6000, 0x4000),  # 1.5 / 1: numerator > denominator
+        (0x2800, 0x5000),  # 0.625 / 1.25
     ]:
         quotient = signed16(numerator) / signed16(denominator)
         cases.append((0b00, numerator, denominator, round(quotient * q14), 2, 14, 1))
 
-    for value in [0x0200, 0x0080, 0x0020]:  # sqrt(4), sqrt(1), sqrt(0.25), POS
+    # POS square roots (Q9.7, fmt=0). Adjacent raw inputs around powers of
+    # two help expose late-iteration rounding when the residual gets tiny.
+    for value in [
+        0x0008,
+        0x001F, 0x0020, 0x0021,  # around 0.25
+        0x003F, 0x0040, 0x0041,  # around 0.5
+        0x007F, 0x0080, 0x0081,  # around 1.0
+        0x0120,
+        0x00FF, 0x0100, 0x0101,  # around 2.0
+        0x01FF, 0x0200, 0x0201,  # around 4.0
+        0x03FF, 0x0400, 0x0401,  # around 8.0
+        0x0800,
+        0x0FFF, 0x1000, 0x1001,  # around 32.0; exercises right normalization
+        0x00AB, 0x0155, 0x02AB, 0x0555,  # irregular binary patterns
+    ]:
         root = math.sqrt(signed16(value) / q7)
         cases.append((0b01, value, 0x0000, round(root * q7), 8, 7, 0))
 
-    for angle in [0x0000, 0x2000, 0xE000]:  # 0, +0.5, -0.5 radians; amplitude 1
+    # DIR square roots (Q2.14, fmt=1).
+    for value in [0x1000, 0x2000, 0x4000, 0x5000, 0x6000]:
+        root = math.sqrt(signed16(value) / q14)
+        cases.append((0b01, value, 0x0000, round(root * q14), 12, 14, 1))
+
+    for angle in [
+        0x0000,  # 0 radians
+        0x2000,  # +0.5 radians
+        0xE000,  # -0.5 radians
+        0x4000,  # +1.0 radians
+        0xC000,  # -1.0 radians
+        0x6000,  # +1.5 radians
+        0xA000,  # -1.5 radians
+    ]:
         angle_real = signed16(angle) / q14
         cosine = math.cos(angle_real)
         cases.append((0b10, 0x4000, angle, round(cosine * q14), 5, 14, 1))
 
+    # POS magnitude vectors (Q9.7).
+    for x_value, y_value in [
+        (0x0080, 0x0000),  # (1, 0)
+        (0x0040, 0x0040),  # (0.5, 0.5)
+        (0x004D, 0x0066),  # approximately (0.6, 0.8)
+        (0x0180, 0x0200),  # (3, 4)
+    ]:
+        magnitude = math.hypot(signed16(x_value) / q7, signed16(y_value) / q7)
+        cases.append((0b11, x_value, y_value, round(magnitude * q7), 8, 7, 0))
+
+    # DIR magnitude vectors (Q2.14).
     for x_value, y_value in [
         (0x4000, 0x0000),  # (1, 0)
         (0x2000, 0x2000),  # (0.5, 0.5)
         (0x2666, 0x3333),  # approximately (0.6, 0.8)
+        (0x3000, 0x3000),  # (0.75, 0.75)
     ]:
         magnitude = math.hypot(signed16(x_value) / q14, signed16(y_value) / q14)
         cases.append((0b11, x_value, y_value, round(magnitude * q14), 8, 14, 1))

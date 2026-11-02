@@ -59,7 +59,7 @@ VL_ATTR_COLD void Vtop___024root__trace_init_sub__TOP__0(Vtop___024root* vlSelf,
     VL_TRACE_DECL_BUS(tracep,c+23,0,"current_state",-1, VerilatedTraceSigDirection::NONE, VerilatedTraceSigKind::VAR, VerilatedTraceSigType::LOGIC, 2,0);
     VL_TRACE_DECL_BUS(tracep,c+24,0,"next_state",-1, VerilatedTraceSigDirection::NONE, VerilatedTraceSigKind::VAR, VerilatedTraceSigType::LOGIC, 2,0);
     VL_TRACE_DECL_BUS(tracep,c+25,0,"cycles_completed",-1, VerilatedTraceSigDirection::NONE, VerilatedTraceSigKind::VAR, VerilatedTraceSigType::LOGIC, 3,0);
-    VL_TRACE_DECL_BUS(tracep,c+26,0,"j",-1, VerilatedTraceSigDirection::NONE, VerilatedTraceSigKind::VAR, VerilatedTraceSigType::LOGIC, 3,0);
+    VL_TRACE_DECL_BUS(tracep,c+26,0,"j",-1, VerilatedTraceSigDirection::NONE, VerilatedTraceSigKind::VAR, VerilatedTraceSigType::LOGIC, 4,0);
     VL_TRACE_DECL_BUS(tracep,c+27,0,"x",-1, VerilatedTraceSigDirection::NONE, VerilatedTraceSigKind::VAR, VerilatedTraceSigType::LOGIC, 15,0);
     VL_TRACE_DECL_BUS(tracep,c+28,0,"y",-1, VerilatedTraceSigDirection::NONE, VerilatedTraceSigKind::VAR, VerilatedTraceSigType::LOGIC, 15,0);
     VL_TRACE_DECL_BUS(tracep,c+29,0,"z",-1, VerilatedTraceSigDirection::NONE, VerilatedTraceSigKind::VAR, VerilatedTraceSigType::LOGIC, 15,0);
@@ -254,7 +254,7 @@ VL_ATTR_COLD void Vtop___024root__trace_full_0_sub_0(Vtop___024root* vlSelf, Ver
     bufp->fullCData(oldp+23,(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__current_state),3);
     bufp->fullCData(oldp+24,(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__next_state),3);
     bufp->fullCData(oldp+25,(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__cycles_completed),4);
-    bufp->fullCData(oldp+26,(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__j),4);
+    bufp->fullCData(oldp+26,(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__j),5);
     bufp->fullSData(oldp+27,(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__x),16);
     bufp->fullSData(oldp+28,(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__y),16);
     bufp->fullSData(oldp+29,(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__z),16);
