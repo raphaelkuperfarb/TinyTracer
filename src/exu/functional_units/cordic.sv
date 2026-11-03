@@ -46,7 +46,6 @@ reg signed [15:0] x, y, z;
 reg signed [15:0] x_next, y_next, z_next;
 reg signed [15:0] negative_x, negative_y;
 reg signed [15:0] x_shifted, y_shifted;
-reg [15:0] one_shifted;
 reg signed [15:0] x_minus_yshifted, x_plus_yshifted;
 reg signed [15:0] y_minus_xshifted, y_plus_xshifted;
 reg repeated;
@@ -76,7 +75,6 @@ always @(posedge clk) begin
         x <= 16'sd0;
         y <= 16'sd0;
         z <= 16'sd0;
-        one_shifted <= 16'h4000;
         neg_q <= 1'b0;
     end else begin
         current_state <= next_state;
@@ -91,7 +89,6 @@ always @(posedge clk) begin
         if (current_state == IDLE && start) begin
             opcode <= fu.req_opcode[1:0];
             format <= fu.req_fmt;
-            one_shifted <= 16'h4000;
             cycles_completed <= 4'b0;
             repeated <= 1'b0;
             j <= 4'b0001;
@@ -99,7 +96,6 @@ always @(posedge clk) begin
             shift_right_q <= 1'b0;
             neg_q <= 1'b0;
         end else if (current_state == LOOP) begin
-            one_shifted <= one_shifted >> 1;
             cycles_completed <= cycles_completed + 1;
             if ((~j[1] & j[2] & ~(j[3]^j[0])) 
                 && opcode == 2'b01 && !repeated)  begin// 4 or 13
@@ -271,10 +267,10 @@ always @(*) begin
             if (opcode == 2'b00) begin
                 if (y[15]== 1'b1) begin
                     y_next = y_plus_xshifted;
-                    z_next = z - one_shifted;
+                    z_next = z - (16'h4000 >>> cycles_completed);
                 end else begin
                     y_next = y_minus_xshifted;
-                    z_next = z + one_shifted;
+                    z_next = z + (16'h4000 >>> cycles_completed);
                 end
             end else if (opcode == 2'b10) begin
                 if (z[15]== 1'b1) begin
