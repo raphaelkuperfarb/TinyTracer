@@ -46,6 +46,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vtop___024root final {
         CData/*2:0*/ tt_um_cordic__DOT__u_cordic__DOT__next_state;
         CData/*3:0*/ tt_um_cordic__DOT__u_cordic__DOT__cycles_completed;
         CData/*4:0*/ tt_um_cordic__DOT__u_cordic__DOT__j;
+        CData/*4:0*/ tt_um_cordic__DOT__u_cordic__DOT__iteration;
         CData/*0:0*/ tt_um_cordic__DOT__u_cordic__DOT__repeated;
         CData/*0:0*/ tt_um_cordic__DOT__u_cordic__DOT__start;
         CData/*3:0*/ tt_um_cordic__DOT__u_cordic__DOT__k;
@@ -75,7 +76,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtop___024root final {
         SData/*15:0*/ tt_um_cordic__DOT__u_cordic__DOT__negative_y;
         SData/*15:0*/ tt_um_cordic__DOT__u_cordic__DOT__x_shifted;
         SData/*15:0*/ tt_um_cordic__DOT__u_cordic__DOT__y_shifted;
-        SData/*15:0*/ tt_um_cordic__DOT__u_cordic__DOT__one_shifted;
         SData/*15:0*/ tt_um_cordic__DOT__u_cordic__DOT__x_minus_yshifted;
         SData/*15:0*/ tt_um_cordic__DOT__u_cordic__DOT__x_plus_yshifted;
         SData/*15:0*/ tt_um_cordic__DOT__u_cordic__DOT__y_minus_xshifted;

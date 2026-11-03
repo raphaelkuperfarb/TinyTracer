@@ -42,6 +42,7 @@ parameter   IDLE = 3'b000,
 reg [2:0] current_state, next_state;
 reg [3:0] cycles_completed;
 reg [4:0] j;
+reg [4:0] iteration;
 reg signed [15:0] x, y, z;
 reg signed [15:0] x_next, y_next, z_next;
 reg signed [15:0] negative_x, negative_y;
@@ -151,6 +152,7 @@ always @(*) begin
     x_next = x;
     y_next = y;
     z_next = z;
+    iteration = 5'd0;
     negative_x = -x;
     negative_y = -y;
     shift_next = shift_q;
@@ -257,8 +259,9 @@ always @(*) begin
             end
         LOOP:
         begin
-            x_shifted = (x >>> cycles_completed);
-            y_shifted = (y >>> cycles_completed);
+            iteration = (opcode == 2'b01) ? j : {1'b0, cycles_completed};
+            x_shifted = (x >>> iteration);
+            y_shifted = (y >>> iteration);
             x_minus_yshifted = x - y_shifted;
             x_plus_yshifted = x + y_shifted;
             y_minus_xshifted = y - x_shifted;
@@ -267,38 +270,38 @@ always @(*) begin
             if (opcode == 2'b00) begin
                 if (y[15]== 1'b1) begin
                     y_next = y_plus_xshifted;
-                    z_next = z - (16'h4000 >>> cycles_completed);
+                    z_next = z - (16'h4000 >>> iteration);
                 end else begin
                     y_next = y_minus_xshifted;
-                    z_next = z + (16'h4000 >>> cycles_completed);
+                    z_next = z + (16'h4000 >>> iteration);
                 end
             end else if (opcode == 2'b10) begin
                 if (z[15]== 1'b1) begin
                     x_next = x_plus_yshifted;
                     y_next = y_minus_xshifted;
-                    z_next = z + ATAN_LUT[{cycles_completed, 4'b0} +: 16];
+                    z_next = z + ATAN_LUT[{iteration, 4'b0} +: 16];
                 end else begin
                     x_next = x_minus_yshifted;
                     y_next = y_plus_xshifted;
-                    z_next = z - ATAN_LUT[{cycles_completed, 4'b0} +: 16];
+                    z_next = z - ATAN_LUT[{iteration, 4'b0} +: 16];
                 end
             end else if (opcode == 2'b11) begin
                 if (y[15]== 1'b1) begin
                     x_next = x_minus_yshifted;
                     y_next = y_plus_xshifted;
-                    z_next = z - ATAN_LUT[{cycles_completed, 4'b0} +: 16];
+                    z_next = z - ATAN_LUT[{iteration, 4'b0} +: 16];
                 end else begin
                     x_next = x_plus_yshifted;
                     y_next = y_minus_xshifted;
-                    z_next = z + ATAN_LUT[{cycles_completed, 4'b0} +: 16];
+                    z_next = z + ATAN_LUT[{iteration, 4'b0} +: 16];
                 end
             end else begin
                 if (y[15] == 1'b1) begin
-                    x_next = x - (negative_y >>> j);
-                    y_next = y + (x >>> j);
+                    x_next = x - (negative_y >>> iteration);
+                    y_next = y_plus_xshifted;
                 end else begin
-                    x_next = x - (y >>> j);
-                    y_next = y - (x >>> j);
+                    x_next = x_minus_yshifted;
+                    y_next = y_minus_xshifted;
                 end
             end
         end

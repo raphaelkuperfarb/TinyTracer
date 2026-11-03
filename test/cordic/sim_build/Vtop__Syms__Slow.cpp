@@ -59,6 +59,7 @@ extern const VlVarTableEntry Vtop___024root__VpiVarTable3[] = {
     {"current_state", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__current_state), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {2, 0, 0, 0, 0, 0}},
     {"cycles_completed", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__cycles_completed), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {3, 0, 0, 0, 0, 0}},
     {"format", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__format), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 0, {0, 0, 0, 0, 0, 0}},
+    {"iteration", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__iteration), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {4, 0, 0, 0, 0, 0}},
     {"j", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__j), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {4, 0, 0, 0, 0, 0}},
     {"k", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__k), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {3, 0, 0, 0, 0, 0}},
     {"l", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__l), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {3, 0, 0, 0, 0, 0}},
@@ -68,7 +69,6 @@ extern const VlVarTableEntry Vtop___024root__VpiVarTable3[] = {
     {"negative_y", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__negative_y), VLVT_UINT16, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {15, 0, 0, 0, 0, 0}},
     {"next_state", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__next_state), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {2, 0, 0, 0, 0, 0}},
     {"normalized", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__normalized), VLVT_UINT16, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {15, 0, 0, 0, 0, 0}},
-    {"one_shifted", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__one_shifted), VLVT_UINT16, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {15, 0, 0, 0, 0, 0}},
     {"opcode", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__opcode), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {1, 0, 0, 0, 0, 0}},
     {"postscale_product", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__postscale_product), VLVT_UINT32, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {31, 0, 0, 0, 0, 0}},
     {"postscale_result", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__postscale_result), VLVT_UINT32, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {31, 0, 0, 0, 0, 0}},
@@ -122,7 +122,7 @@ Vtop__Syms::Vtop__Syms(VerilatedContext* contextp, const char* namep, Vtop* mode
     , TOP{this, namep}
 {
     // Check resources
-    Verilated::stackCheck(191);
+    Verilated::stackCheck(189);
     // Setup sub module instances
     TOP__tinytracer_pkg.ctor(this, "tinytracer_pkg");
     TOP__tt_um_cordic__DOT__fu.ctor(this, "tt_um_cordic.fu");
