@@ -48,6 +48,8 @@ reg signed [15:0] x_next, y_next, z_next;
 reg signed [15:0] negative_x, negative_y;
 reg signed [15:0] x_shifted, y_shifted;
 reg x_subtract, y_subtract;
+reg z_subtract;
+reg [15:0] one_shifted;
 reg signed [15:0] x_minus_yshifted, x_plus_yshifted;
 reg signed [15:0] y_minus_xshifted, y_plus_xshifted;
 reg repeated;
@@ -158,24 +160,26 @@ always @(*) begin
     negative_y = -y;
     x_subtract = 1'b0;
     y_subtract = 1'b0;
+    z_subtract = 1'b0;
     shift_next = shift_q;
     shift_right_next = shift_right_q;
     neg_next = neg_q;
     k = 4'b0;
     l = 4'b0;
     tooBig = 1'b0;
-    ym = 16'sd0;
-    xp = 16'sd0;
+    ym = 16'b0;
+    xp = 16'b0;
     angleShift = 1'b0;
     normalized = x;
-    x_shifted = 16'sd0;
-    y_shifted = 16'sd0;
-    x_minus_yshifted = 16'sd0;
-    x_plus_yshifted = 16'sd0;
-    y_minus_xshifted = 16'sd0;
-    y_plus_xshifted = 16'sd0;
-    postscale_product = 32'sd0;
-    postscale_result = 32'sd0;
+    one_shifted = 16'b0;
+    x_shifted = 16'b0;
+    y_shifted = 16'b0;
+    x_minus_yshifted = 16'b0;
+    x_plus_yshifted = 16'b0;
+    y_minus_xshifted = 16'b0;
+    y_plus_xshifted = 16'b0;
+    postscale_product = 32'b0;
+    postscale_result = 32'b0;
     case(current_state)
         IDLE:
             fu.req_ready = 1'b1;
@@ -263,32 +267,16 @@ always @(*) begin
         LOOP:
         begin
             iteration = (opcode == 2'b01) ? j : {1'b0, cycles_completed};
+            one_shifted = (16'h4000 >>> iteration);
             x_shifted = (x >>> iteration);
             y_shifted = (((opcode == 2'b01 && y[15]) ? negative_y : y) >>> iteration);
             y_subtract = (opcode == 2'b10) ? z[15] : ~y[15];
             x_subtract = (opcode == 2'b01) ? 1'b1 : (opcode[0] ? y[15] : ~z[15]);
+            z_subtract = (opcode == 2'b10) ? ~z[15] : y[15];
             x_next = (opcode == 2'b00)? x : x + (y_shifted ^ {16{x_subtract}}) + x_subtract;
             y_next = y + (x_shifted ^ {16{y_subtract}}) + y_subtract;
-
-            if (opcode == 2'b00) begin
-                if (y[15]== 1'b1) begin
-                    z_next = z - (16'h4000 >>> iteration);
-                end else begin
-                    z_next = z + (16'h4000 >>> iteration);
-                end
-            end else if (opcode == 2'b10) begin
-                if (z[15]== 1'b1) begin
-                    z_next = z + ATAN_LUT[{iteration, 4'b0} +: 16];
-                end else begin
-                    z_next = z - ATAN_LUT[{iteration, 4'b0} +: 16];
-                end
-            end else if (opcode == 2'b11) begin
-                if (y[15]== 1'b1) begin
-                    z_next = z - ATAN_LUT[{iteration, 4'b0} +: 16];
-                end else begin
-                    z_next = z + ATAN_LUT[{iteration, 4'b0} +: 16];
-                end
-            end 
+            z_next = opcode[1] ? z + (ATAN_LUT[{iteration, 4'b0} +: 16] ^ {16{z_subtract}}) + z_subtract :
+                                 z + (one_shifted ^ {16{z_subtract}}) + z_subtract;
         end
         REVERT:
         begin
