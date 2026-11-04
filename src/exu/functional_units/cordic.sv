@@ -47,6 +47,7 @@ reg signed [15:0] x, y, z;
 reg signed [15:0] x_next, y_next, z_next;
 reg signed [15:0] negative_x, negative_y;
 reg signed [15:0] x_shifted, y_shifted;
+reg x_subtract, y_subtract;
 reg signed [15:0] x_minus_yshifted, x_plus_yshifted;
 reg signed [15:0] y_minus_xshifted, y_plus_xshifted;
 reg repeated;
@@ -155,6 +156,8 @@ always @(*) begin
     iteration = 5'd0;
     negative_x = -x;
     negative_y = -y;
+    x_subtract = 1'b0;
+    y_subtract = 1'b0;
     shift_next = shift_q;
     shift_right_next = shift_right_q;
     neg_next = neg_q;
@@ -198,7 +201,7 @@ always @(*) begin
         end
         NORMALIZE:
         begin
-            if (opcode == 2'b00 || opcode == 2'b01) begin
+            if (~opcode[1]) begin
                 neg_next = x[15];
                 xp = neg_next ? negative_x : x;
                 for (int i = 0; i < 15; i++) begin
@@ -261,49 +264,31 @@ always @(*) begin
         begin
             iteration = (opcode == 2'b01) ? j : {1'b0, cycles_completed};
             x_shifted = (x >>> iteration);
-            y_shifted = (y >>> iteration);
-            x_minus_yshifted = x - y_shifted;
-            x_plus_yshifted = x + y_shifted;
-            y_minus_xshifted = y - x_shifted;
-            y_plus_xshifted = y + x_shifted;
+            y_shifted = (((opcode == 2'b01 && y[15]) ? negative_y : y) >>> iteration);
+            y_subtract = (opcode == 2'b10) ? z[15] : ~y[15];
+            x_subtract = (opcode == 2'b01) ? 1'b1 : (opcode[0] ? y[15] : ~z[15]);
+            x_next = (opcode == 2'b00)? x : x + (y_shifted ^ {16{x_subtract}}) + x_subtract;
+            y_next = y + (x_shifted ^ {16{y_subtract}}) + y_subtract;
 
             if (opcode == 2'b00) begin
                 if (y[15]== 1'b1) begin
-                    y_next = y_plus_xshifted;
                     z_next = z - (16'h4000 >>> iteration);
                 end else begin
-                    y_next = y_minus_xshifted;
                     z_next = z + (16'h4000 >>> iteration);
                 end
             end else if (opcode == 2'b10) begin
                 if (z[15]== 1'b1) begin
-                    x_next = x_plus_yshifted;
-                    y_next = y_minus_xshifted;
                     z_next = z + ATAN_LUT[{iteration, 4'b0} +: 16];
                 end else begin
-                    x_next = x_minus_yshifted;
-                    y_next = y_plus_xshifted;
                     z_next = z - ATAN_LUT[{iteration, 4'b0} +: 16];
                 end
             end else if (opcode == 2'b11) begin
                 if (y[15]== 1'b1) begin
-                    x_next = x_minus_yshifted;
-                    y_next = y_plus_xshifted;
                     z_next = z - ATAN_LUT[{iteration, 4'b0} +: 16];
                 end else begin
-                    x_next = x_plus_yshifted;
-                    y_next = y_minus_xshifted;
                     z_next = z + ATAN_LUT[{iteration, 4'b0} +: 16];
                 end
-            end else begin
-                if (y[15] == 1'b1) begin
-                    x_next = x - (negative_y >>> iteration);
-                    y_next = y_plus_xshifted;
-                end else begin
-                    x_next = x_minus_yshifted;
-                    y_next = y_minus_xshifted;
-                end
-            end
+            end 
         end
         REVERT:
         begin
@@ -319,7 +304,7 @@ always @(*) begin
         POSTSCALE:
         begin
             // Magnitude gain correction: 0.60725 ~= 9945 / 2^14. Square-root gain correction: 1.2075 ~= 19784 / 2^14.
-            if (opcode == 2'b11 || opcode == 2'b01) begin
+            if (opcode[0]) begin
                 postscale_product =
                        (opcode == 2'b11 ? ({16'b0, x} <<< 13) : ({16'b0, x} <<< 14))
                     +  (opcode == 2'b11 ? ({16'b0, x} <<< 11) : ({16'b0, x} <<< 12))

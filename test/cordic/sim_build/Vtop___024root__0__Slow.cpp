@@ -19,6 +19,14 @@ VL_ATTR_COLD void Vtop___024root___eval_initial(Vtop___024root* vlSelf) {
     VL_DEBUG_IF(VL_DBG_MSGF("+    Vtop___024root___eval_initial\n"); );
     Vtop__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
     auto& vlSelfRef = std::ref(*vlSelf).get();
+    // Body
+    {
+        // Inlined CFunc: _eval_initial__TOP
+        vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__x_plus_yshifted = 0U;
+        vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__x_minus_yshifted = 0U;
+        vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__y_plus_xshifted = 0U;
+        vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__y_minus_xshifted = 0U;
+    }
 }
 
 #ifdef VL_DEBUG
@@ -275,6 +283,8 @@ VL_ATTR_COLD void Vtop___024root___ctor_var_reset(Vtop___024root* vlSelf) {
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__negative_y = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 8089766748036040109ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__x_shifted = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 5254532176598006786ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__y_shifted = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 15401178111684781802ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__x_subtract = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 17291746699958315037ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__y_subtract = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 14930180766588769856ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__x_minus_yshifted = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 17113075032349106938ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__x_plus_yshifted = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 10983915365917513103ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__y_minus_xshifted = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 13121532293998835980ull);
