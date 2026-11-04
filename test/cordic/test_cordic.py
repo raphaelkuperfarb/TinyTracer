@@ -51,7 +51,7 @@ async def run_operation(
                 f"result={signed_result / scale:.6f} "
                 f"expected={expected / scale:.6f}"
             )
-            passed = abs(result - expected) <= tolerance
+            passed = abs(signed_result - expected) <= tolerance
             await FallingEdge(dut.clk)
             dut.ui_in.value = control(opcode, fmt) | 1
             await RisingEdge(dut.clk)
@@ -88,10 +88,19 @@ async def cordic_operations(dut):
         (0x2000, 0x4000),  # 0.5 / 1
         (0x5000, 0x4000),  # 1.25 / 1: numerator > denominator
         (0x6000, 0x4000),  # 1.5 / 1: numerator > denominator
+        (0x3000, 0x2000),  # 0.75 / 0.5: scale denominator left by 1
+        (0x2000, 0x1800),  # 0.5 / 0.375: scale denominator left by 2
+        (0x5000, 0x3000),  # 1.25 / 0.75: halve numerator and scale denominator
         (0x2800, 0x5000),  # 0.625 / 1.25
+        (0x5000, 0x1000),  # 1.25 / 0.25: y0 is much larger than x0
+        (0xE000, 0x4000),  # -0.5 / 1: negative numerator
+        (0x2000, 0xC000),  # 0.5 / -1: negative denominator
+        (0xE000, 0xC000),  # -0.5 / -1: both operands negative
     ]:
         quotient = signed16(numerator) / signed16(denominator)
-        cases.append((0b00, numerator, denominator, round(quotient * q14), 2, 14, 1))
+        # Division results clamp to the signed 16-bit range.
+        expected = min(0x7FFF, max(-0x8000, round(quotient * q14)))
+        cases.append((0b00, numerator, denominator, expected, 2, 14, 1))
 
     # POS square roots (Q9.7, fmt=0). Adjacent raw inputs around powers of
     # two help expose late-iteration rounding when the residual gets tiny.
@@ -116,8 +125,9 @@ async def cordic_operations(dut):
         root = math.sqrt(signed16(value) / q7)
         cases.append((0b01, value, 0x0000, round(root * q7), 8, 7, 0))
 
-    # DIR square roots (Q2.14, fmt=1).
-    for value in [0x1000, 0x2000, 0x4000, 0x5000, 0x6000]:
+    # DIR square roots (Q2.14, fmt=1). Values below 0.5 force left
+    # normalization by an even number of bits; 0x1FFF is just below 0.5.
+    for value in [0x0FFF, 0x1000, 0x1FFF, 0x2000, 0x4000, 0x5000, 0x6000]:
         root = math.sqrt(signed16(value) / q14)
         cases.append((0b01, value, 0x0000, round(root * q14), 12, 14, 1))
 
@@ -129,6 +139,8 @@ async def cordic_operations(dut):
         0xC000,  # -1.0 radians
         0x6000,  # +1.5 radians
         0xA000,  # -1.5 radians
+        0x7333,  # +1.8 radians: triggers angleShift; REVERT must negate x/y
+        0x8CCD,  # -1.8 radians: triggers angleShift; REVERT must negate x/y
     ]:
         angle_real = signed16(angle) / q14
         cosine = math.cos(angle_real)

@@ -54,7 +54,8 @@ extern const VlVarTableEntry Vtop_fu_if__VpiVarTable2[] = {
     {"resp_result", offsetof(Vtop_fu_if, resp_result), VLVT_UINT16, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {15, 0, 0, 0, 0, 0}},
 };
 extern const VlVarTableEntry Vtop___024root__VpiVarTable3[] = {
-    {"angleShift", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__angleShift), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 0, {0, 0, 0, 0, 0, 0}},
+    {"angle_shift", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__angle_shift), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 0, {0, 0, 0, 0, 0, 0}},
+    {"angle_shift_q", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__angle_shift_q), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 0, {0, 0, 0, 0, 0, 0}},
     {"clk", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__clk), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW|VLVF_CONTINUOUSLY), 0, 0, {0, 0, 0, 0, 0, 0}},
     {"current_state", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__current_state), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {2, 0, 0, 0, 0, 0}},
     {"cycles_completed", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__cycles_completed), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {3, 0, 0, 0, 0, 0}},
@@ -63,8 +64,6 @@ extern const VlVarTableEntry Vtop___024root__VpiVarTable3[] = {
     {"j", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__j), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {4, 0, 0, 0, 0, 0}},
     {"k", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__k), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {3, 0, 0, 0, 0, 0}},
     {"l", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__l), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {3, 0, 0, 0, 0, 0}},
-    {"neg_next", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__neg_next), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 0, {0, 0, 0, 0, 0, 0}},
-    {"neg_q", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__neg_q), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 0, {0, 0, 0, 0, 0, 0}},
     {"negative_x", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__negative_x), VLVT_UINT16, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {15, 0, 0, 0, 0, 0}},
     {"negative_y", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__negative_y), VLVT_UINT16, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {15, 0, 0, 0, 0, 0}},
     {"next_state", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__next_state), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {2, 0, 0, 0, 0, 0}},
@@ -75,6 +74,7 @@ extern const VlVarTableEntry Vtop___024root__VpiVarTable3[] = {
     {"postscale_result", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__postscale_result), VLVT_UINT32, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {31, 0, 0, 0, 0, 0}},
     {"repeated", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__repeated), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 0, {0, 0, 0, 0, 0, 0}},
     {"rst_n", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__rst_n), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW|VLVF_CONTINUOUSLY), 0, 0, {0, 0, 0, 0, 0, 0}},
+    {"shift_by", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__shift_by), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {3, 0, 0, 0, 0, 0}},
     {"shift_next", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__shift_next), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {3, 0, 0, 0, 0, 0}},
     {"shift_q", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__shift_q), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {3, 0, 0, 0, 0, 0}},
     {"shift_right_next", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__shift_right_next), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 0, {0, 0, 0, 0, 0, 0}},
@@ -103,7 +103,7 @@ extern const VlVarTableEntry Vtop___024root__VpiVarTable4[] = {
     {"i", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__unnamedblk1__DOT__i), VLVT_UINT32, (VLVD_NODIR|VLVF_PUB_RW|VLVF_DPI_CLAY|VLVF_SIGNED), 0, 1, {31, 0, 0, 0, 0, 0}},
 };
 extern const VlVarTableEntry Vtop___024root__VpiVarTable5[] = {
-    {"h", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__unnamedblk2__DOT__h), VLVT_UINT32, (VLVD_NODIR|VLVF_PUB_RW|VLVF_DPI_CLAY|VLVF_SIGNED), 0, 1, {31, 0, 0, 0, 0, 0}},
+    {"i", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__unnamedblk2__DOT__i), VLVT_UINT32, (VLVD_NODIR|VLVF_PUB_RW|VLVF_DPI_CLAY|VLVF_SIGNED), 0, 1, {31, 0, 0, 0, 0, 0}},
 };
 extern const VlScopeTableEntry Vtop__Syms__VpiScopeTable[] = {
     {offsetof(Vtop__Syms, __Vscopep_TOP), "TOP", "TOP", "<null>", 0, VerilatedScope::SCOPE_OTHER},

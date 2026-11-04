@@ -40,7 +40,7 @@ VM_USER_CFLAGS = \
 
 # User LDLIBS (from -LDFLAGS on Verilator command line)
 VM_USER_LDLIBS = \
-  -Wl,-rpath,/mnt/c/Users/rkupt/desktop/tinytracer/test/.venv/lib/python3.14/site-packages/cocotb/libs -L/mnt/c/Users/rkupt/desktop/tinytracer/test/.venv/lib/python3.14/site-packages/cocotb/libs -lcocotbvpi_verilator \
+  -Wl,-rpath,/mnt/c/Users/rkupt/desktop/tinytracer/test/venv/lib/python3.14/site-packages/cocotb/libs -L/mnt/c/Users/rkupt/desktop/tinytracer/test/venv/lib/python3.14/site-packages/cocotb/libs -lcocotbvpi_verilator \
 
 # User .cpp files (from .cpp's on Verilator command line)
 VM_USER_CLASSES = \
@@ -49,7 +49,7 @@ VM_USER_CLASSES = \
 # User .cpp directories (from .cpp's on Verilator command line)
 VM_USER_DIR = \
   .. \
-  ../../.venv/lib/python3.14/site-packages/cocotb/share/lib/verilator \
+  ../../venv/lib/python3.14/site-packages/cocotb/share/lib/verilator \
 
 ### Default rules...
 # Include list of all generated classes
@@ -64,7 +64,7 @@ VPATH += $(VM_USER_DIR)
 LDFLAGS += $(CFG_LDFLAGS_DYNAMIC)
 LDLIBS += $(CFG_LDLIBS_DYNAMIC)
 
-verilator.o: /mnt/c/Users/rkupt/desktop/tinytracer/test/.venv/lib/python3.14/site-packages/cocotb/share/lib/verilator/verilator.cpp 
+verilator.o: /mnt/c/Users/rkupt/desktop/tinytracer/test/venv/lib/python3.14/site-packages/cocotb/share/lib/verilator/verilator.cpp 
 	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST)  -c -o $@ $<
 
 ### Link rules... (from --exe)

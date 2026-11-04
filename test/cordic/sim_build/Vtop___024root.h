@@ -47,6 +47,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vtop___024root final {
         CData/*3:0*/ tt_um_cordic__DOT__u_cordic__DOT__cycles_completed;
         CData/*4:0*/ tt_um_cordic__DOT__u_cordic__DOT__j;
         CData/*4:0*/ tt_um_cordic__DOT__u_cordic__DOT__iteration;
+        CData/*3:0*/ tt_um_cordic__DOT__u_cordic__DOT__shift_by;
         CData/*0:0*/ tt_um_cordic__DOT__u_cordic__DOT__x_subtract;
         CData/*0:0*/ tt_um_cordic__DOT__u_cordic__DOT__y_subtract;
         CData/*0:0*/ tt_um_cordic__DOT__u_cordic__DOT__z_subtract;
@@ -59,9 +60,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtop___024root final {
         CData/*0:0*/ tt_um_cordic__DOT__u_cordic__DOT__shift_right_next;
         CData/*0:0*/ tt_um_cordic__DOT__u_cordic__DOT__shift_right_q;
         CData/*0:0*/ tt_um_cordic__DOT__u_cordic__DOT__tooBig;
-        CData/*0:0*/ tt_um_cordic__DOT__u_cordic__DOT__neg_q;
-        CData/*0:0*/ tt_um_cordic__DOT__u_cordic__DOT__neg_next;
-        CData/*0:0*/ tt_um_cordic__DOT__u_cordic__DOT__angleShift;
+        CData/*0:0*/ tt_um_cordic__DOT__u_cordic__DOT__angle_shift;
+        CData/*0:0*/ tt_um_cordic__DOT__u_cordic__DOT__angle_shift_q;
         CData/*1:0*/ tt_um_cordic__DOT__u_cordic__DOT__opcode;
         CData/*0:0*/ tt_um_cordic__DOT__u_cordic__DOT__format;
         CData/*0:0*/ __Vtrigprevexpr___TOP__tt_um_cordic__DOT__clk__0;
@@ -92,7 +92,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vtop___024root final {
         IData/*31:0*/ tt_um_cordic__DOT__u_cordic__DOT__postscale_product;
         IData/*31:0*/ tt_um_cordic__DOT__u_cordic__DOT__postscale_result;
         IData/*31:0*/ tt_um_cordic__DOT__u_cordic__DOT__unnamedblk1__DOT__i;
-        IData/*31:0*/ tt_um_cordic__DOT__u_cordic__DOT__unnamedblk2__DOT__h;
+        IData/*31:0*/ tt_um_cordic__DOT__u_cordic__DOT__unnamedblk2__DOT__i;
         VlUnpacked<QData/*63:0*/, 1> __VstlTriggered;
         VlUnpacked<QData/*63:0*/, 1> __VicoTriggered;
         VlUnpacked<QData/*63:0*/, 1> __VactTriggered;
