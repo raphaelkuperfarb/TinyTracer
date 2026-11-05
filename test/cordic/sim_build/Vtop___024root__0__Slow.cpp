@@ -23,10 +23,10 @@ VL_ATTR_COLD void Vtop___024root___eval_initial(Vtop___024root* vlSelf) {
     {
         // Inlined CFunc: _eval_initial__TOP
         vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__shift_by = 0U;
-        vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__y_plus_xshifted = 0U;
         vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__y_minus_xshifted = 0U;
         vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__x_plus_yshifted = 0U;
         vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__x_minus_yshifted = 0U;
+        vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__y_plus_xshifted = 0U;
     }
 }
 
@@ -300,6 +300,7 @@ VL_ATTR_COLD void Vtop___024root___ctor_var_reset(Vtop___024root* vlSelf) {
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__shift_diff = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 6899570991918790345ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__shift_next = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 10233822421526907053ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__shift_q = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 59510315533695709ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__shift_base = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 2093366224626832473ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__shift_right_next = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6017681376053944049ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__shift_right_q = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 17737484830892243271ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__tooBig = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6509448985774599561ull);

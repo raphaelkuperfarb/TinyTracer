@@ -229,13 +229,11 @@ always @(*) begin
                 if (l >= k) begin
                     shift_diff = l - k;
                     shift_next = shift_diff + 1'b1;
-                    normalized = xp <<< shift_next;
-                    if (~normalized[15]) begin
-                        x_next = normalized;
-                    end else begin
-                        normalized = ym >>> shift_next;
+                    if (l == 4'd14) begin
+                        normalized = ym >>> 1;
                         y_next = y_next[15] ? -normalized : normalized;
                     end
+                    x_next = xp <<< ((l == 4'd14) ? shift_diff : shift_next);
                 end
             end else if (opcode == 2'b10) begin
                 angle_shift = (z > 16'sh6F92 || z < 16'sh906E);
@@ -248,20 +246,15 @@ always @(*) begin
                 tooBig = |x[14:8];
                 normalized = x;
                 shift_base = k[0] ? 4'd7 : 4'd6;
-                    if (((tooBig | ~(x[6] | x[7])) & ~format) 
-                        | (~(x[13] | x[14]) & format)) begin //under 0.5 or over 2
-                        shift_next = (format ? (k[0] ? 4'd13 : 4'd14) : (tooBig ? k : shift_base))
-                                   - ((format | ~tooBig) ? k : shift_base);
-                        if (format | ~tooBig) begin
-                            shift_right_next = 1'b0;
-                            normalized = x <<< shift_next;
-                        end else begin
-                            shift_right_next = 1'b1;
-                            normalized = x >>> shift_next;
-                        end
-                    end
-                    x_next = normalized + (format? 16'h1000 : 16'h0020);
-                    y_next = normalized - (format? 16'h1000 : 16'h0020);
+                if (((tooBig | ~(x[6] | x[7])) & ~format)
+                    | (~(x[13] | x[14]) & format)) begin // under 0.5 or over 2
+                    shift_next = (format ? (k[0] ? 4'd13 : 4'd14) : (tooBig ? k : shift_base))
+                               - ((format | ~tooBig) ? k : shift_base);
+                    shift_right_next = ~format & tooBig;
+                    normalized = shift_right_next ? (x >>> shift_next) : (x <<< shift_next);
+                end
+                x_next = normalized + (format ? 16'h1000 : 16'h0020);
+                y_next = normalized - (format ? 16'h1000 : 16'h0020);
                 end
             end
         LOOP:

@@ -74,6 +74,7 @@ extern const VlVarTableEntry Vtop___024root__VpiVarTable3[] = {
     {"postscale_result", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__postscale_result), VLVT_UINT32, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {31, 0, 0, 0, 0, 0}},
     {"repeated", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__repeated), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 0, {0, 0, 0, 0, 0, 0}},
     {"rst_n", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__rst_n), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW|VLVF_CONTINUOUSLY), 0, 0, {0, 0, 0, 0, 0, 0}},
+    {"shift_base", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__shift_base), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {3, 0, 0, 0, 0, 0}},
     {"shift_by", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__shift_by), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {3, 0, 0, 0, 0, 0}},
     {"shift_diff", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__shift_diff), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {3, 0, 0, 0, 0, 0}},
     {"shift_next", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__shift_next), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {3, 0, 0, 0, 0, 0}},
@@ -183,7 +184,7 @@ Vtop__Syms::Vtop__Syms(VerilatedContext* contextp, const char* namep, Vtop* mode
     __Vscopep_tinytracer_pkg->varInsert("WLEN", const_cast<void*>(static_cast<const void*>(&(TOP__tinytracer_pkg.WLEN))), true, VLVT_UINT32, VLVD_NODIR|VLVF_PUB_RW|VLVF_DPI_CLAY|VLVF_SIGNED, 0, 1 ,31,0);
     __Vscopep_tt_um_cordic->varsInsertFromTable(Vtop___024root__VpiVarTable1, 14, &(TOP));
     __Vscopep_tt_um_cordic__fu->varsInsertFromTable(Vtop_fu_if__VpiVarTable2, 8, &(TOP__tt_um_cordic__DOT__fu));
-    __Vscopep_tt_um_cordic__u_cordic->varsInsertFromTable(Vtop___024root__VpiVarTable3, 45, &(TOP));
+    __Vscopep_tt_um_cordic__u_cordic->varsInsertFromTable(Vtop___024root__VpiVarTable3, 46, &(TOP));
     __Vscopep_tt_um_cordic__u_cordic->varInsert("ATAN_LUT", const_cast<void*>(static_cast<const void*>(&(TOP.tt_um_cordic__DOT__u_cordic__DOT__ATAN_LUT))), true, VLVT_WDATA, VLVD_NODIR|VLVF_PUB_RW, 0, 1 ,255,0);
     __Vscopep_tt_um_cordic__u_cordic->varInsert("IDLE", const_cast<void*>(static_cast<const void*>(&(TOP.tt_um_cordic__DOT__u_cordic__DOT__IDLE))), true, VLVT_UINT8, VLVD_NODIR|VLVF_PUB_RW, 0, 1 ,2,0);
     __Vscopep_tt_um_cordic__u_cordic->varInsert("INIT", const_cast<void*>(static_cast<const void*>(&(TOP.tt_um_cordic__DOT__u_cordic__DOT__INIT))), true, VLVT_UINT8, VLVD_NODIR|VLVF_PUB_RW, 0, 1 ,2,0);
