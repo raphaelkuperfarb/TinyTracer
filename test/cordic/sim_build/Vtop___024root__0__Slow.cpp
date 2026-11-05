@@ -22,10 +22,10 @@ VL_ATTR_COLD void Vtop___024root___eval_initial(Vtop___024root* vlSelf) {
     // Body
     {
         // Inlined CFunc: _eval_initial__TOP
+        vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__shift_by = 0U;
         vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__y_minus_xshifted = 0U;
         vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__x_plus_yshifted = 0U;
         vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__x_minus_yshifted = 0U;
-        vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__shift_by = 0U;
         vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__y_plus_xshifted = 0U;
     }
 }
@@ -307,13 +307,8 @@ VL_ATTR_COLD void Vtop___024root___ctor_var_reset(Vtop___024root* vlSelf) {
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__ym = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 16122052536951590330ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__xp = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 11050522268129064551ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__normalized = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 6514038028619737159ull);
-    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__ps1 = VL_SCOPED_RAND_RESET_I(19, __VscopeHash, 3459612129115951837ull);
-    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__ps2 = VL_SCOPED_RAND_RESET_I(22, __VscopeHash, 9624592234725143012ull);
-    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__ps3 = VL_SCOPED_RAND_RESET_I(25, __VscopeHash, 10395451291012247250ull);
-    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__ps4 = VL_SCOPED_RAND_RESET_I(27, __VscopeHash, 17465865729242997612ull);
-    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__ps5 = VL_SCOPED_RAND_RESET_I(30, __VscopeHash, 14703442547022560359ull);
-    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__postscale_product = VL_SCOPED_RAND_RESET_I(31, __VscopeHash, 11194689768884128369ull);
-    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__postscale_result = VL_SCOPED_RAND_RESET_I(17, __VscopeHash, 16291967078371936877ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__postscale_product = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 11194689768884128369ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__postscale_result = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 16291967078371936877ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__angle_shift = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 4252305682107688482ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__angle_shift_q = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 12899829729554040031ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__opcode = VL_SCOPED_RAND_RESET_I(2, __VscopeHash, 8125033404194173609ull);
