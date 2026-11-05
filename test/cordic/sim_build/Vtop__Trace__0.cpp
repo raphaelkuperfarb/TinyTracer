@@ -83,20 +83,25 @@ void Vtop___024root__trace_chg_0_sub_0(Vtop___024root* vlSelf, VerilatedVcd::Buf
     bufp->chgSData(oldp+58,(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__ym),16);
     bufp->chgSData(oldp+59,(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__xp),16);
     bufp->chgSData(oldp+60,(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__normalized),16);
-    bufp->chgIData(oldp+61,(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__postscale_product),32);
-    bufp->chgIData(oldp+62,(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__postscale_result),32);
-    bufp->chgBit(oldp+63,(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__angle_shift));
-    bufp->chgBit(oldp+64,(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__angle_shift_q));
-    bufp->chgCData(oldp+65,(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__opcode),2);
-    bufp->chgBit(oldp+66,(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__format));
-    bufp->chgBit(oldp+67,(vlSymsp->TOP__tt_um_cordic__DOT__fu.req_valid));
-    bufp->chgSData(oldp+68,(vlSymsp->TOP__tt_um_cordic__DOT__fu.req_op1),16);
-    bufp->chgSData(oldp+69,(vlSymsp->TOP__tt_um_cordic__DOT__fu.req_op2),16);
-    bufp->chgCData(oldp+70,(vlSymsp->TOP__tt_um_cordic__DOT__fu.req_opcode),3);
-    bufp->chgBit(oldp+71,(vlSymsp->TOP__tt_um_cordic__DOT__fu.req_fmt));
-    bufp->chgBit(oldp+72,(vlSymsp->TOP__tt_um_cordic__DOT__fu.req_ready));
-    bufp->chgBit(oldp+73,(vlSymsp->TOP__tt_um_cordic__DOT__fu.resp_done));
-    bufp->chgSData(oldp+74,(vlSymsp->TOP__tt_um_cordic__DOT__fu.resp_result),16);
+    bufp->chgIData(oldp+61,(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__ps1),19);
+    bufp->chgIData(oldp+62,(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__ps2),22);
+    bufp->chgIData(oldp+63,(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__ps3),25);
+    bufp->chgIData(oldp+64,(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__ps4),27);
+    bufp->chgIData(oldp+65,(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__ps5),30);
+    bufp->chgIData(oldp+66,(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__postscale_product),31);
+    bufp->chgIData(oldp+67,(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__postscale_result),17);
+    bufp->chgBit(oldp+68,(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__angle_shift));
+    bufp->chgBit(oldp+69,(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__angle_shift_q));
+    bufp->chgCData(oldp+70,(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__opcode),2);
+    bufp->chgBit(oldp+71,(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__format));
+    bufp->chgBit(oldp+72,(vlSymsp->TOP__tt_um_cordic__DOT__fu.req_valid));
+    bufp->chgSData(oldp+73,(vlSymsp->TOP__tt_um_cordic__DOT__fu.req_op1),16);
+    bufp->chgSData(oldp+74,(vlSymsp->TOP__tt_um_cordic__DOT__fu.req_op2),16);
+    bufp->chgCData(oldp+75,(vlSymsp->TOP__tt_um_cordic__DOT__fu.req_opcode),3);
+    bufp->chgBit(oldp+76,(vlSymsp->TOP__tt_um_cordic__DOT__fu.req_fmt));
+    bufp->chgBit(oldp+77,(vlSymsp->TOP__tt_um_cordic__DOT__fu.req_ready));
+    bufp->chgBit(oldp+78,(vlSymsp->TOP__tt_um_cordic__DOT__fu.resp_done));
+    bufp->chgSData(oldp+79,(vlSymsp->TOP__tt_um_cordic__DOT__fu.resp_result),16);
 }
 
 void Vtop___024root__trace_cleanup(void* voidSelf, VerilatedVcd* /*unused*/) {

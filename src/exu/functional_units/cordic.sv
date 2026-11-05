@@ -59,7 +59,15 @@ reg [3:0] k, l, shift_diff, shift_next, shift_q, shift_base;
 reg shift_right_next, shift_right_q;
 reg tooBig;
 reg signed [15:0] ym, xp, normalized;
-reg signed [31:0] postscale_product, postscale_result;
+reg [18:0] ps1;
+reg [21:0] ps2;
+reg [24:0] ps3;
+reg [26:0] ps4;
+reg [29:0] ps5;
+
+reg [30:0] postscale_product;
+reg [16:0] postscale_result;
+
 reg angle_shift;
 reg angle_shift_q;
 reg [1:0] opcode;
@@ -182,8 +190,14 @@ always @(*) begin
     x_plus_yshifted = 16'b0;
     y_minus_xshifted = 16'b0;
     y_plus_xshifted = 16'b0;
-    postscale_product = 32'b0;
-    postscale_result = 32'b0;
+    ps1 = 19'd0;
+    ps2 = 22'd0;
+    ps3 = 25'd0;
+    ps4 = 27'd0;
+    ps5 = 30'd0;
+
+    postscale_product = 31'd0;
+    postscale_result = 17'd0;
     case(current_state)
         IDLE:
             fu.req_ready = 1'b1;
@@ -288,29 +302,49 @@ always @(*) begin
         begin
             // Magnitude gain correction: 0.60725 ~= 9945 / 2^14. Square-root gain correction: 1.2075 ~= 19784 / 2^14.
             if (opcode[0]) begin
-                postscale_product =
-                       (opcode == 2'b11 ? ({16'b0, x} <<< 13) : ({16'b0, x} <<< 14))
-                    +  (opcode == 2'b11 ? ({16'b0, x} <<< 11) : ({16'b0, x} <<< 12))
-                    -  (opcode == 2'b11 ? ({16'b0, x} <<< 8) : ({16'b0, x} <<< 9))
-                    -  (opcode == 2'b11 ? ({16'b0, x} <<< 5) : ({16'b0, x} <<< 7))
-                    -  (opcode == 2'b11 ? ({16'b0, x} <<< 3) : ({16'b0, x} <<< 6))
-                    +  (opcode == 2'b11 ? {16'b0, x} : ({16'b0, x} <<< 3));
-                postscale_result = postscale_product >>> 14;
-                if (postscale_result > 32'sd32767)
-                    x_next = 16'h7FFF;
-                else if (postscale_result < -32'sd32768)
-                    x_next = 16'h8000;
-                else
-                    x_next = postscale_result[15:0];
-                fu.resp_result = x_next;
-            end else if (opcode == 2'b00) begin
-                fu.resp_result = z;
-            end else begin
-                fu.resp_result = x;
-            end
+                // 5x
+            ps1 = ({3'b000, x} << 2) + {3'b000, x};
 
-            fu.resp_done = 1'b1;
+            // 39x or 19x
+            ps2 = (opcode == 2'b11) ?
+                (({3'b000, ps1} << 3) - {{6{1'b0}}, x}) :
+                (({3'b000, ps1} << 2) - {{6{1'b0}}, x});
+
+            // 311x or 77x
+            ps3 = (opcode == 2'b11) ?
+                (({3'b000, ps2} << 3) - {{9{1'b0}}, x}) :
+                (({3'b000, ps2} << 2) + {{9{1'b0}}, x});
+
+            // 1243x or 309x
+            ps4 = (opcode == 2'b11) ?
+                (({2'b00, ps3} << 2) - {{11{1'b0}}, x}) :
+                (({2'b00, ps3} << 2) + {{11{1'b0}}, x});
+
+            // 9945x or 2473x
+            ps5 = ({3'b000, ps4} << 3) + {{14{1'b0}}, x};
+
+            // Square root requires an additional factor of 8
+            postscale_product = (opcode == 2'b11) ?
+                                {1'b0, ps5} :
+                                {ps5[27:0], 3'b000};
+
+            postscale_result = postscale_product >> 14;
+
+            if (postscale_result > 17'd32767)
+                x_next = 16'h7FFF;
+            else
+                x_next = postscale_result[15:0];
+
+            fu.resp_result = x_next;
+
+        end else if (opcode == 2'b00) begin
+            fu.resp_result = z;
+        end else begin
+            fu.resp_result = x;
         end
+
+        fu.resp_done = 1'b1;
+    end
         
 
     endcase
