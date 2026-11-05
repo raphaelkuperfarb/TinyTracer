@@ -55,7 +55,7 @@ reg signed [15:0] x_minus_yshifted, x_plus_yshifted;
 reg signed [15:0] y_minus_xshifted, y_plus_xshifted;
 reg repeated;
 wire start;
-reg [3:0] k, l, shift_diff, shift_next, shift_q;
+reg [3:0] k, l, shift_diff, shift_next, shift_q, shift_base;
 reg shift_right_next, shift_right_q;
 reg tooBig;
 reg signed [15:0] ym, xp, normalized;
@@ -168,6 +168,7 @@ always @(*) begin
     k = 4'b0;
     l = 4'b0;
     shift_diff = 4'b0;
+    shift_base = 4'b0;
     tooBig = 1'b0;
     ym = 16'b0;
     xp = 16'b0;
@@ -246,20 +247,17 @@ always @(*) begin
             end else if (opcode == 2'b01) begin
                 tooBig = |x[14:8];
                 normalized = x;
+                shift_base = k[0] ? 4'd7 : 4'd6;
                     if (((tooBig | ~(x[6] | x[7])) & ~format) 
                         | (~(x[13] | x[14]) & format)) begin //under 0.5 or over 2
-                        if (format) begin
-                            shift_next = (k[0] ? 13 : 14) - k ;
+                        shift_next = (format ? (k[0] ? 4'd13 : 4'd14) : (tooBig ? k : shift_base))
+                                   - ((format | ~tooBig) ? k : shift_base);
+                        if (format | ~tooBig) begin
                             shift_right_next = 1'b0;
                             normalized = x <<< shift_next;
-                        end else if (tooBig) begin
-                            shift_next = k - (k[0] ? 7 : 6);
+                        end else begin
                             shift_right_next = 1'b1;
                             normalized = x >>> shift_next;
-                        end else begin
-                            shift_next = (k[0] ? 7 : 6) - k;
-                            shift_right_next = 1'b0;
-                            normalized = x <<< shift_next;
                         end
                     end
                     x_next = normalized + (format? 16'h1000 : 16'h0020);
@@ -282,18 +280,15 @@ always @(*) begin
         end
         REVERT:
         begin
-            if (~opcode[1]) begin
-                normalized = (opcode[0] ? x : z ) <<< (opcode[0] ? ((shift_q) >>> 1) : shift_q);
-            end
             if (opcode ==  2'b00) begin
                 if (|((z ^ {16{z[15]}}) & (16'hFFFF <<< (~shift_q))))
                     z_next = z[15] ? 16'h8000 : 16'h7FFF;
                 else
-                    z_next = normalized;
+                    z_next = z <<< shift_q;
             end else if (opcode == 2'b10) begin
                 x_next = angle_shift_q ? negative_x : x;
             end else if (opcode == 2'b01) begin
-                x_next = shift_right_q? (normalized) : (x >>> ((shift_q) >>> 1));
+                x_next = shift_right_q? (x <<< ((shift_q) >>> 1)) : (x >>> ((shift_q) >>> 1));
             end
         end
         POSTSCALE:
