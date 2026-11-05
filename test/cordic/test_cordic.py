@@ -92,7 +92,19 @@ async def cordic_operations(dut):
         (0x2000, 0x1800),  # 0.5 / 0.375: scale denominator left by 2
         (0x5000, 0x3000),  # 1.25 / 0.75: halve numerator and scale denominator
         (0x2800, 0x5000),  # 0.625 / 1.25
-        (0x5000, 0x1000),  # 1.25 / 0.25: y0 is much larger than x0
+        (0x1000, 0x1000),  # 0.25 / 0.25
+        (0x2000, 0x1000),  # 0.5 / 0.25 = 2.0: positive limit
+        (0x3000, 0x1000),  # 0.75 / 0.25 = 3.0: positive saturation
+        (0x5000, 0x1000),  # 1.25 / 0.25 = 5.0: large positive saturation
+        (0x0800, 0x1000),  # 0.125 / 0.25
+        (0x1800, 0x1000),  # 0.375 / 0.25
+        (0x5000, 0xF000),  # 1.25 / -0.25 = -5.0: negative saturation
+        (0xB000, 0x1000),  # -1.25 / 0.25 = -5.0: negative saturation
+        (0xB000, 0xF000),  # -1.25 / -0.25 = 5.0: positive saturation
+        (0xE000, 0x1000),  # -0.5 / 0.25 = -2.0: negative limit
+        (0xE000, 0x2000),  # -0.5 / 0.5 = -1.0
+        (0x2000, 0xE000),  # 0.5 / -0.5 = -1.0
+        (0xE000, 0xE000),  # -0.5 / -0.5 = 1.0
         (0xE000, 0x4000),  # -0.5 / 1: negative numerator
         (0x2000, 0xC000),  # 0.5 / -1: negative denominator
         (0xE000, 0xC000),  # -0.5 / -1: both operands negative
