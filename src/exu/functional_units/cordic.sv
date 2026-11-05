@@ -258,7 +258,8 @@ always @(*) begin
                         x[12], x[13], x[14], x[15]
                         } : x ) <<< shift_next;
                 end
-                x_next = (shift_right_next ? {
+                if (shift_right_next) begin
+                    normalized = {
                     normalized[0], normalized[1],
                     normalized[2], normalized[3],
                     normalized[4], normalized[5],
@@ -267,17 +268,11 @@ always @(*) begin
                     normalized[10], normalized[11],
                     normalized[12], normalized[13],
                     normalized[14], normalized[15]
-                } : normalized) + (format ? 16'h1000 : 16'h0020);
-                y_next = (shift_right_next ? {
-                    normalized[0], normalized[1],
-                    normalized[2], normalized[3],
-                    normalized[4], normalized[5],
-                    normalized[6], normalized[7],
-                    normalized[8], normalized[9],
-                    normalized[10], normalized[11],
-                    normalized[12], normalized[13],
-                    normalized[14], normalized[15]
-                } : normalized) - (format ? 16'h1000 : 16'h0020);
+                    };
+                end
+
+                x_next = normalized + (format ? 16'h1000 : 16'h0020);
+                y_next = normalized - (format ? 16'h1000 : 16'h0020);
                 end
             end
         LOOP:
