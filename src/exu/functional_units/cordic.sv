@@ -283,11 +283,10 @@ always @(*) begin
         REVERT:
         begin
             if (opcode ==  2'b00) begin
-                normalized = z <<< shift_q;
-                if ((normalized >>> shift_q) != z)
+                if (|((z ^ {16{z[15]}}) & (16'hFFFF <<< (~shift_q))))
                     z_next = z[15] ? 16'h8000 : 16'h7FFF;
                 else
-                    z_next = normalized;
+                    z_next = z <<< shift_q;
             end else if (opcode == 2'b10) begin
                 x_next = angle_shift_q ? negative_x : x;
             end else if (opcode == 2'b01) begin
