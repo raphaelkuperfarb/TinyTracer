@@ -251,10 +251,33 @@ always @(*) begin
                     shift_next = (format ? (k[0] ? 4'd13 : 4'd14) : (tooBig ? k : shift_base))
                                - ((format | ~tooBig) ? k : shift_base);
                     shift_right_next = ~format & tooBig;
-                    normalized = shift_right_next ? (x >>> shift_next) : (x <<< shift_next);
+                    normalized = (shift_right_next ? {
+                        x[0], x[1], x[2], x[3],
+                        x[4], x[5], x[6], x[7],
+                        x[8], x[9], x[10], x[11],
+                        x[12], x[13], x[14], x[15]
+                        } : x ) <<< shift_next;
                 end
-                x_next = normalized + (format ? 16'h1000 : 16'h0020);
-                y_next = normalized - (format ? 16'h1000 : 16'h0020);
+                x_next = (shift_right_next ? {
+                    normalized[0], normalized[1],
+                    normalized[2], normalized[3],
+                    normalized[4], normalized[5],
+                    normalized[6], normalized[7],
+                    normalized[8], normalized[9],
+                    normalized[10], normalized[11],
+                    normalized[12], normalized[13],
+                    normalized[14], normalized[15]
+                } : normalized) + (format ? 16'h1000 : 16'h0020);
+                y_next = (shift_right_next ? {
+                    normalized[0], normalized[1],
+                    normalized[2], normalized[3],
+                    normalized[4], normalized[5],
+                    normalized[6], normalized[7],
+                    normalized[8], normalized[9],
+                    normalized[10], normalized[11],
+                    normalized[12], normalized[13],
+                    normalized[14], normalized[15]
+                } : normalized) - (format ? 16'h1000 : 16'h0020);
                 end
             end
         LOOP:
