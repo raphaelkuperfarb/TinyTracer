@@ -266,10 +266,9 @@ always @(*) begin
             y_subtract = (opcode == 2'b10) ? z[15] : ~y[15];
             x_subtract = (opcode == 2'b01) ? 1'b1 : (opcode[0] ? y[15] : ~z[15]);
             z_subtract = (opcode == 2'b10) ? ~z[15] : y[15];
-            x_next = (opcode == 2'b00)? x : x + (y_shifted ^ {16{x_subtract}}) + x_subtract;
+            x_next = (opcode == 2'b00)? x : (x + (y_shifted ^ {16{x_subtract}}) + x_subtract);
             y_next = y + (x_shifted ^ {16{y_subtract}}) + y_subtract;
-            z_next = opcode[1] ? z + (ATAN_LUT[{iteration, 4'b0} +: 16] ^ {16{z_subtract}}) + z_subtract :
-                                 z + (one_shifted ^ {16{z_subtract}}) + z_subtract;
+            z_next = z + z_subtract + ((opcode[1] ? ATAN_LUT[{iteration, 4'b0} +: 16] : one_shifted) ^ {16{z_subtract}})  ;
         end
         REVERT:
         begin
