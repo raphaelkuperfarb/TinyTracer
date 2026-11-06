@@ -194,7 +194,7 @@ always @(*) begin
                 y_next = fu.req_op1;
                 z_next = 16'h0000;
             end else if (opcode == 2'b10) begin
-                x_next = 16'h26DD;
+                x_next = fu.req_op1;
                 y_next = 16'h0000;
                 z_next = fu.req_op2;
             end else if (opcode == 2'b11) begin
@@ -287,14 +287,14 @@ always @(*) begin
         POSTSCALE:
         begin
             // Magnitude gain correction: 0.60725 ~= 9945 / 2^14. Square-root gain correction: 1.2075 ~= 19784 / 2^14.
-            if (opcode[0]) begin
+            if (opcode[0] | opcode[1]) begin
                 postscale_product =
-                       (opcode == 2'b11 ? ({16'b0, x} <<< 13) : ({16'b0, x} <<< 14))
-                    +  (opcode == 2'b11 ? ({16'b0, x} <<< 11) : ({16'b0, x} <<< 12))
-                    -  (opcode == 2'b11 ? ({16'b0, x} <<< 8) : ({16'b0, x} <<< 9))
-                    -  (opcode == 2'b11 ? ({16'b0, x} <<< 5) : ({16'b0, x} <<< 7))
-                    -  (opcode == 2'b11 ? ({16'b0, x} <<< 3) : ({16'b0, x} <<< 6))
-                    +  (opcode == 2'b11 ? {16'b0, x} : ({16'b0, x} <<< 3));
+                       (opcode[1] ? ({{16{x[15]}}, x} <<< 13) : ({16'b0, x} <<< 14))
+                    +  (opcode[1] ? ({{16{x[15]}}, x} <<< 11) : ({16'b0, x} <<< 12))
+                    -  (opcode[1] ? ({{16{x[15]}}, x} <<< 8) : ({16'b0, x} <<< 9))
+                    -  (opcode[1] ? ({{16{x[15]}}, x} <<< 5) : ({16'b0, x} <<< 7))
+                    -  (opcode[1] ? ({{16{x[15]}}, x} <<< 3) : ({16'b0, x} <<< 6))
+                    +  (opcode[1] ? {{16{x[15]}}, x} : ({16'b0, x} <<< 3));
                 postscale_result = postscale_product >>> 14;
                 if (postscale_result > 32'sd32767)
                     x_next = 16'h7FFF;
@@ -303,11 +303,9 @@ always @(*) begin
                 else
                     x_next = postscale_result[15:0];
                 fu.resp_result = x_next;
-            end else if (opcode == 2'b00) begin
-                fu.resp_result = z;
             end else begin
-                fu.resp_result = x;
-            end
+                fu.resp_result = z;
+            end 
 
             fu.resp_done = 1'b1;
         end
