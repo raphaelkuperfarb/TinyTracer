@@ -64,8 +64,6 @@ reg angle_shift;
 reg angle_shift_q;
 reg [1:0] opcode;
 reg format;
-reg state_repeated;
-reg  [15:0] add_result;
 
 assign start = fu.req_valid && !(fu.req_opcode == 2'b01 && fu.req_op1[15] == 1'b1);
 
@@ -82,7 +80,6 @@ always @(posedge clk) begin
         y <= 16'sd0;
         z <= 16'sd0;
         angle_shift_q <= 1'b0;
-        state_repeated <= 1'b0;
     end else begin
         current_state <= next_state;
         
@@ -104,7 +101,6 @@ always @(posedge clk) begin
             shift_q <= 4'b0;
             shift_right_q <= 1'b0;
             angle_shift_q <= 1'b0;
-            state_repeated <= 1'b0;
         end else if (current_state == LOOP) begin
             cycles_completed <= cycles_completed + 1;
             if ((~j[1] & j[2] & ~(j[3]^j[0])) 
@@ -115,10 +111,6 @@ always @(posedge clk) begin
                 j <=  j+1;
                 repeated <= 1'b0;
             end
-        end else if (current_state == NORMALIZE) begin
-            state_repeated <= (opcode == 2'b01) & ~state_repeated; 
-        end else if (current_state == POSTSCALE) begin
-            state_repeated = ~state_repeated;
         end
     end
 end
@@ -136,10 +128,7 @@ always @(*) begin
         INIT:
             next_state = NORMALIZE;
         NORMALIZE:
-            if (state_repeated | (opcode != 01))
-                next_state = LOOP;
-            else
-                next_state = NORMALIZE;
+            next_state = LOOP;
         LOOP:
         begin
             if (opcode == 2'b01) begin
@@ -152,18 +141,12 @@ always @(*) begin
                     next_state = REVERT;
                 else
                     next_state = LOOP;
-            end
+end
         end
         REVERT:
             next_state = POSTSCALE;
         POSTSCALE:
-        begin
-            if (state_repeated) begin
-                next_state = IDLE;
-            end else begin
-                next_state = POSTSCALE;
-            end
-        end
+            next_state = IDLE;
     endcase
 end    
 
@@ -174,7 +157,7 @@ always @(*) begin
     x_next = x;
     y_next = y;
     z_next = z;
-    iteration = 5'b0;
+    iteration = 5'd0;
     negative_x = -x;
     negative_y = -y;
     x_subtract = 1'b0;
@@ -201,7 +184,6 @@ always @(*) begin
     y_plus_xshifted = 16'b0;
     postscale_product = 32'b0;
     postscale_result = 32'b0;
-    add_result = 16'b0;
     case(current_state)
         IDLE:
             fu.req_ready = 1'b1;
@@ -236,7 +218,9 @@ always @(*) begin
             end
             if (opcode == 2'b00) begin
                 x_next = xp;
-                y_next = x[15] ? negative_y : y;
+                if (x[15]) begin
+                    y_next = negative_y;
+                end
                 ym = y[15] ? negative_y : y;
                 for (int i = 0; i < 15; i++) begin
                     if (ym[i])
@@ -259,24 +243,18 @@ always @(*) begin
                 x_next = x[15] ? negative_x : x;
                 y_next = y[15] ? negative_y : y;
             end else if (opcode == 2'b01) begin
-                if (~state_repeated) begin
-                    tooBig = |x[14:8];
-                    normalized = x;
-                    shift_base = k[0] ? 4'd7 : 4'd6;
-                    if (((tooBig | ~(x[6] | x[7])) & ~format)
-                        | (~(x[13] | x[14]) & format)) begin // under 0.5 or over 2
-                        shift_next = (format ? (k[0] ? 4'd13 : 4'd14) : (tooBig ? k : shift_base))
-                                - ((format | ~tooBig) ? k : shift_base);
-                        shift_right_next = ~format & tooBig;
-                        normalized = shift_right_next ? (x >>> shift_next) : (x <<< shift_next);
-                    end
+                tooBig = |x[14:8];
+                normalized = x;
+                shift_base = k[0] ? 4'd7 : 4'd6;
+                if (((tooBig | ~(x[6] | x[7])) & ~format)
+                    | (~(x[13] | x[14]) & format)) begin // under 0.5 or over 2
+                    shift_next = (format ? (k[0] ? 4'd13 : 4'd14) : (tooBig ? k : shift_base))
+                               - ((format | ~tooBig) ? k : shift_base);
+                    shift_right_next = ~format & tooBig;
+                    normalized = shift_right_next ? (x >>> shift_next) : (x <<< shift_next);
                 end
-                add_result = (state_repeated ? x : normalized) + (state_repeated ? (format ? 16'hE000 : 16'hFFC0) : (format ? 16'h1000 : 16'h0020));
-                if (~state_repeated )begin
-                    x_next = add_result;
-                end else begin
-                    y_next = add_result;
-                end
+                x_next = normalized + (format ? 16'h1000 : 16'h0020);
+                y_next = normalized - (format ? 16'h1000 : 16'h0020);
                 end
             end
         LOOP:
@@ -290,7 +268,7 @@ always @(*) begin
             z_subtract = (opcode == 2'b10) ? ~z[15] : y[15];
             x_next = (opcode == 2'b00)? x : (x + (y_shifted ^ {16{x_subtract}}) + x_subtract);
             y_next = y + (x_shifted ^ {16{y_subtract}}) + y_subtract;
-            z_next = z + z_subtract + ( (opcode[1] ? ATAN_LUT[{iteration, 4'b0} +: 16] : one_shifted) ^ {16{z_subtract}} )  ;
+            z_next = z + z_subtract + ((opcode[1] ? ATAN_LUT[{iteration, 4'b0} +: 16] : one_shifted) ^ {16{z_subtract}})  ;
         end
         REVERT:
         begin
@@ -310,32 +288,28 @@ always @(*) begin
             // Magnitude gain correction: 0.60725 ~= 9945 / 2^14. Square-root gain correction: 1.2075 ~= 19784 / 2^14.
             if (opcode[0] | opcode[1]) begin
                 postscale_product =
-                       (state_repeated ? {y,z} : (opcode[1] ? ({{16{x[15]}}, x} <<< 13) : ({16'b0, x} <<< 14)))
-                    +  (state_repeated ? (opcode[1] ? ({{16{x[15]}}, x} <<< 11) : ({16'b0, x} <<< 12)) : (opcode[1] ? {{16{x[15]}}, x} : ({16'b0, x} <<< 3)))
-                    -  (state_repeated ? (opcode[1] ? ({{16{x[15]}}, x} <<< 8) : ({16'b0, x} <<< 9)) : (opcode[1] ? ({{16{x[15]}}, x} <<< 5) : ({16'b0, x} <<< 7)))
-                    -  (state_repeated ? (opcode[1] ? ({{16{x[15]}}, x} <<< 3) : ({16'b0, x} <<< 6)) : 32'b0);
-                if (~state_repeated) begin
-                    {y_next, z_next} = postscale_product;
-                end
-                if (state_repeated) begin
-                    postscale_result = postscale_product >>> 14;
-                    if (postscale_result > 32'sd32767)
-                        x_next = 16'h7FFF;
-                    else if (postscale_result < -32'sd32768)
-                        x_next = 16'h8000;
-                    else
-                        x_next = postscale_result[15:0];
-                    fu.resp_result = x_next;
-                end
+                       (opcode[1] ? ({{16{x[15]}}, x} <<< 13) : ({16'b0, x} <<< 14))
+                    +  (opcode[1] ? ({{16{x[15]}}, x} <<< 11) : ({16'b0, x} <<< 12))
+                    -  (opcode[1] ? ({{16{x[15]}}, x} <<< 8) : ({16'b0, x} <<< 9))
+                    -  (opcode[1] ? ({{16{x[15]}}, x} <<< 5) : ({16'b0, x} <<< 7))
+                    -  (opcode[1] ? ({{16{x[15]}}, x} <<< 3) : ({16'b0, x} <<< 6))
+                    +  (opcode[1] ? {{16{x[15]}}, x} : ({16'b0, x} <<< 3));
+                postscale_result = postscale_product >>> 14;
+                if (postscale_result > 32'sd32767)
+                    x_next = 16'h7FFF;
+                else if (postscale_result < -32'sd32768)
+                    x_next = 16'h8000;
+                else
+                    x_next = postscale_result[15:0];
+                fu.resp_result = x_next;
             end else begin
-                if (state_repeated) begin
-                    fu.resp_result = z;
-                end
+                fu.resp_result = z;
             end 
-            if (state_repeated) begin
-                fu.resp_done = 1'b1;
-            end
+
+            fu.resp_done = 1'b1;
         end
+        
+
     endcase
     
 end

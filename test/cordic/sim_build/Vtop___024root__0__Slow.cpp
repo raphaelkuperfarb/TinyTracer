@@ -22,11 +22,11 @@ VL_ATTR_COLD void Vtop___024root___eval_initial(Vtop___024root* vlSelf) {
     // Body
     {
         // Inlined CFunc: _eval_initial__TOP
-        vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__y_plus_xshifted = 0U;
         vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__shift_by = 0U;
-        vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__x_minus_yshifted = 0U;
-        vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__x_plus_yshifted = 0U;
         vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__y_minus_xshifted = 0U;
+        vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__x_plus_yshifted = 0U;
+        vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__x_minus_yshifted = 0U;
+        vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__y_plus_xshifted = 0U;
     }
 }
 
@@ -59,12 +59,6 @@ VL_ATTR_COLD bool Vtop___024root___eval_stl(Vtop___024root* vlSelf, CData/*0:0*/
             if ((1ULL & vlSelfRef.__VstlTriggered[0U])) {
                 {
                     // Inlined CFunc: _stl_sequent__TOP__0
-                    vlSymsp->TOP__tt_um_cordic__DOT__fu.req_ready = 0U;
-                    if ((0U == (IData)(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__current_state))) {
-                        vlSymsp->TOP__tt_um_cordic__DOT__fu.req_ready = 1U;
-                    }
-                    vlSelfRef.tt_um_cordic__DOT__uio_in 
-                        = vlSelfRef.uio_in;
                     vlSymsp->TOP__tt_um_cordic__DOT__fu.resp_done = 0U;
                     if ((0U != (IData)(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__current_state))) {
                         if ((1U != (IData)(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__current_state))) {
@@ -72,15 +66,19 @@ VL_ATTR_COLD bool Vtop___024root___eval_stl(Vtop___024root* vlSelf, CData/*0:0*/
                                 if ((2U != (IData)(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__current_state))) {
                                     if ((6U != (IData)(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__current_state))) {
                                         if ((4U == (IData)(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__current_state))) {
-                                            if (vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__state_repeated) {
-                                                vlSymsp->TOP__tt_um_cordic__DOT__fu.resp_done = 1U;
-                                            }
+                                            vlSymsp->TOP__tt_um_cordic__DOT__fu.resp_done = 1U;
                                         }
                                     }
                                 }
                             }
                         }
                     }
+                    vlSymsp->TOP__tt_um_cordic__DOT__fu.req_ready = 0U;
+                    if ((0U == (IData)(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__current_state))) {
+                        vlSymsp->TOP__tt_um_cordic__DOT__fu.req_ready = 1U;
+                    }
+                    vlSelfRef.tt_um_cordic__DOT__uio_in 
+                        = vlSelfRef.uio_in;
                     vlSelfRef.tt_um_cordic__DOT__uio_oe 
                         = (0x000000ffU & (- (IData)((IData)(vlSelfRef.tt_um_cordic__DOT__result_valid))));
                     vlSelfRef.tt_um_cordic__DOT__uo_out 
@@ -315,8 +313,6 @@ VL_ATTR_COLD void Vtop___024root___ctor_var_reset(Vtop___024root* vlSelf) {
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__angle_shift_q = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 12899829729554040031ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__opcode = VL_SCOPED_RAND_RESET_I(2, __VscopeHash, 8125033404194173609ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__format = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 655247897360982197ull);
-    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__state_repeated = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 13836047670318903247ull);
-    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__add_result = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 2189726668679792251ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__unnamedblk1__DOT__i = 0;
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__unnamedblk2__DOT__i = 0;
     for (int __Vi0 = 0; __Vi0 < 1; ++__Vi0) {
