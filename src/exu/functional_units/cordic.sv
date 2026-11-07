@@ -118,7 +118,7 @@ always @(posedge clk) begin
         end else if (current_state == NORMALIZE) begin
             state_repeated <= (opcode == 2'b01) & ~state_repeated; 
         end else if (current_state == POSTSCALE) begin
-            state_repeated <= ~state_repeated;
+            state_repeated = ~state_repeated;
         end
     end
 end
