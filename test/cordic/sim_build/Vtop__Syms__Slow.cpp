@@ -54,6 +54,7 @@ extern const VlVarTableEntry Vtop_fu_if__VpiVarTable2[] = {
     {"resp_result", offsetof(Vtop_fu_if, resp_result), VLVT_UINT16, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {15, 0, 0, 0, 0, 0}},
 };
 extern const VlVarTableEntry Vtop___024root__VpiVarTable3[] = {
+    {"add_result", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__add_result), VLVT_UINT16, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {15, 0, 0, 0, 0, 0}},
     {"angle_shift", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__angle_shift), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 0, {0, 0, 0, 0, 0, 0}},
     {"angle_shift_q", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__angle_shift_q), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 0, {0, 0, 0, 0, 0, 0}},
     {"clk", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__clk), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW|VLVF_CONTINUOUSLY), 0, 0, {0, 0, 0, 0, 0, 0}},
@@ -82,6 +83,7 @@ extern const VlVarTableEntry Vtop___024root__VpiVarTable3[] = {
     {"shift_right_next", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__shift_right_next), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 0, {0, 0, 0, 0, 0, 0}},
     {"shift_right_q", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__shift_right_q), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 0, {0, 0, 0, 0, 0, 0}},
     {"start", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__start), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW|VLVF_CONTINUOUSLY|VLVF_NET), 0, 0, {0, 0, 0, 0, 0, 0}},
+    {"state_repeated", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__state_repeated), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 0, {0, 0, 0, 0, 0, 0}},
     {"tooBig", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__tooBig), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 0, {0, 0, 0, 0, 0, 0}},
     {"x", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__x), VLVT_UINT16, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {15, 0, 0, 0, 0, 0}},
     {"x_minus_yshifted", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__x_minus_yshifted), VLVT_UINT16, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {15, 0, 0, 0, 0, 0}},
@@ -128,7 +130,7 @@ Vtop__Syms::Vtop__Syms(VerilatedContext* contextp, const char* namep, Vtop* mode
     , TOP{this, namep}
 {
     // Check resources
-    Verilated::stackCheck(189);
+    Verilated::stackCheck(191);
     // Setup sub module instances
     TOP__tinytracer_pkg.ctor(this, "tinytracer_pkg");
     TOP__tt_um_cordic__DOT__fu.ctor(this, "tt_um_cordic.fu");
@@ -184,7 +186,7 @@ Vtop__Syms::Vtop__Syms(VerilatedContext* contextp, const char* namep, Vtop* mode
     __Vscopep_tinytracer_pkg->varInsert("WLEN", const_cast<void*>(static_cast<const void*>(&(TOP__tinytracer_pkg.WLEN))), true, VLVT_UINT32, VLVD_NODIR|VLVF_PUB_RW|VLVF_DPI_CLAY|VLVF_SIGNED, 0, 1 ,31,0);
     __Vscopep_tt_um_cordic->varsInsertFromTable(Vtop___024root__VpiVarTable1, 14, &(TOP));
     __Vscopep_tt_um_cordic__fu->varsInsertFromTable(Vtop_fu_if__VpiVarTable2, 8, &(TOP__tt_um_cordic__DOT__fu));
-    __Vscopep_tt_um_cordic__u_cordic->varsInsertFromTable(Vtop___024root__VpiVarTable3, 46, &(TOP));
+    __Vscopep_tt_um_cordic__u_cordic->varsInsertFromTable(Vtop___024root__VpiVarTable3, 48, &(TOP));
     __Vscopep_tt_um_cordic__u_cordic->varInsert("ATAN_LUT", const_cast<void*>(static_cast<const void*>(&(TOP.tt_um_cordic__DOT__u_cordic__DOT__ATAN_LUT))), true, VLVT_WDATA, VLVD_NODIR|VLVF_PUB_RW, 0, 1 ,255,0);
     __Vscopep_tt_um_cordic__u_cordic->varInsert("IDLE", const_cast<void*>(static_cast<const void*>(&(TOP.tt_um_cordic__DOT__u_cordic__DOT__IDLE))), true, VLVT_UINT8, VLVD_NODIR|VLVF_PUB_RW, 0, 1 ,2,0);
     __Vscopep_tt_um_cordic__u_cordic->varInsert("INIT", const_cast<void*>(static_cast<const void*>(&(TOP.tt_um_cordic__DOT__u_cordic__DOT__INIT))), true, VLVT_UINT8, VLVD_NODIR|VLVF_PUB_RW, 0, 1 ,2,0);
