@@ -1,10 +1,17 @@
 `default_nettype wire
 
 module cordic #(
+    parameter int WLEN=tinytracer_pkg::WLEN,
     parameter int ITER=tinytracer_pkg::WLEN
 ) (
     input  logic        clk,
     input  logic        rst_n,
+    input  logic        start,
+    input  logic [1:0]  opcode,
+    input  logic [WLEN-1:0] A_in,
+    input  logic [WLEN-1:0] B_in,
+    output logic [WLEN-1:0] ans,
+    output logic        busy,
 
     // FU <-> CORDIC Interface
     fu_if.server        fu
@@ -92,8 +99,12 @@ always @(posedge clk) begin
     end
 end
 
-always @(*) begin 
+always @(*) begin
+    next_state = current_state;
     case(current_state)
+        IDLE: if (start) next_state = INIT;
+        INIT: next_state = NORMALIZE;
+        NORMALIZE: next_state = LOOP;
         LOOP:
         begin
             if (cycles_completed == ITER-1) 
@@ -101,6 +112,9 @@ always @(*) begin
             else
                 next_state = LOOP;
         end
+        REVERT: next_state = POSTSCALE;
+        POSTSCALE: next_state = IDLE;
+        default: next_state = IDLE;
     endcase
 end    
 
