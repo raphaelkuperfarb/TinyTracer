@@ -123,7 +123,16 @@ always @(*) begin
     y_next = y;
     z_next = z;
     case(current_state)
-        LOOP:
+        IDLE: begin
+            
+        end
+        INIT: begin
+            
+        end
+        NORMALIZE: begin
+            
+        end
+        LOOP: begin
             if (fu.req_opcode[1:0] == 2'b00) begin
                 fu.req_ready = 0;
                 if (y[15]== 1'b1) begin
@@ -164,10 +173,14 @@ always @(*) begin
                     z_next = z + ATANH_LUT[j-1];
                 end
             end
-
+        end 
+        REVERT: begin
             
+        end
+        POSTSCALE: begin
+            
+        end
     endcase
-    
 end
 
 endmodule
