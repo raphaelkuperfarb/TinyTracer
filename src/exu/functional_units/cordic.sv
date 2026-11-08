@@ -49,15 +49,14 @@ reg signed [15:0] x_shifted, y_shifted;
 reg x_subtract, y_subtract;
 reg z_subtract;
 reg [15:0] one_shifted;
+reg [15:0] z_sum;
 reg repeated;
 wire start;
 reg [3:0] k, l, shift_diff, shift_next, shift_q, shift_base;
-reg [3:0] div_amt, sqrt_amt;
-reg div_shift, sqrt_shift;
 reg shift_right_next, shift_right_q;
 reg tooBig;
 reg signed [15:0] ym, xp, normalized;
-reg [15:0] sh_in, sh_pre, sh_out;
+reg [15:0] sh_in, sh_pre, sh_out;   // shared barrel shifter
 reg [16:0] sh_r;
 reg [3:0] sh_amt;
 reg sh_left;
@@ -155,9 +154,11 @@ always @(*) begin
     shift_right_next = shift_right_q;
     k = 4'b0;
     l = 4'b0;
+    shift_diff = 4'b0;
+    shift_base = 4'b0;
+    tooBig = 1'b0;
     angle_shift = 1'b0;
     normalized = x;
-    one_shifted = 16'b0;
     x_shifted = 16'b0;
     y_shifted = 16'b0;
     postscale_x = 17'b0;
@@ -169,7 +170,6 @@ always @(*) begin
     // so the i = 16 step of sqrt can use a 4-bit shift amount.
     iteration = j[3:0] | {4{j[4]}};
 
-    // Normalization decode, used by NORMALIZE and by the shifter below.
     xp = x[15] ? negative_x : x;
     ym = y[15] ? negative_y : y;
     for (int i = 0; i < 15; i++) begin
@@ -178,30 +178,33 @@ always @(*) begin
         if (ym[i])
             l = i;
     end
-    div_shift = (l >= k);
-    shift_diff = l - k;
-    div_amt = (l == 4'd14) ? shift_diff : shift_diff + 1'b1;
-    tooBig = |x[14:8];
-    shift_base = k[0] ? 4'd7 : 4'd6;
-    sqrt_shift = ((tooBig | ~(x[6] | x[7])) & ~format)
-               | (~(x[13] | x[14]) & format); // under 0.5 or over 2
-    sqrt_amt = (format ? (k[0] ? 4'd13 : 4'd14) : (tooBig ? k : shift_base))
-             - ((format | ~tooBig) ? k : shift_base);
 
     // One barrel shifter, shared by every state that shifts x or z by a
     // variable amount. sh_out = sh_left ? (sh_in << sh_amt) : (sh_in >>> sh_amt);
     // a left shift is a right shift of the bit-reversed value.
     sh_in = x;
-    sh_amt = iteration;
+    sh_amt = iteration;     // LOOP: x >>> i
     sh_left = 1'b0;
     if (current_state == NORMALIZE) begin
         if (opcode == 2'b00) begin
             sh_in = xp;
-            sh_amt = div_shift ? div_amt : 4'd0;
+            sh_amt = 4'd0;
             sh_left = 1'b1;
+            if (l >= k) begin
+                shift_diff = l - k;
+                sh_amt = (l == 4'd14) ? shift_diff : shift_diff + 1'b1;
+            end
         end else begin
-            sh_amt = sqrt_shift ? sqrt_amt : 4'd0;
-            sh_left = format | ~tooBig;
+            tooBig = |x[14:8];
+            shift_base = k[0] ? 4'd7 : 4'd6;
+            sh_amt = 4'd0;
+            sh_left = 1'b1;
+            if (((tooBig | ~(x[6] | x[7])) & ~format)
+                | (~(x[13] | x[14]) & format)) begin // under 0.5 or over 2
+                sh_amt = (format ? (k[0] ? 4'd13 : 4'd14) : (tooBig ? k : shift_base))
+                       - ((format | ~tooBig) ? k : shift_base);
+                sh_left = format | ~tooBig;
+            end
         end
     end else if (current_state == REVERT) begin
         if (opcode == 2'b00) begin
@@ -218,6 +221,14 @@ always @(*) begin
     sh_r = $signed({~sh_left & sh_in[15], sh_pre}) >>> sh_amt;
     for (int i = 0; i < 16; i++)
         sh_out[i] = sh_left ? sh_r[15-i] : sh_r[i];
+
+    // One z adder, shared by LOOP and the cosine angle shift in NORMALIZE,
+    // which adds +pi (16'hC910) or -pi (16'h36F0) to z.
+    one_shifted = (16'h4000 >>> iteration);
+    if (current_state == LOOP)
+        z_subtract = (opcode == 2'b10) ? ~z[15] : y[15];
+    z_sum = z + z_subtract + (((current_state == LOOP) ? (opcode[1] ? ATAN_LUT[{iteration, 4'b0} +: 16] : one_shifted)
+                                                       : (z[15] ? 16'hC910 : 16'h36F0)) ^ {16{z_subtract}});
 
     case(current_state)
         IDLE:
@@ -251,7 +262,7 @@ always @(*) begin
                 if (x[15]) begin
                     y_next = negative_y;
                 end
-                if (div_shift) begin
+                if (l >= k) begin
                     shift_next = shift_diff + 1'b1;
                     if (l == 4'd14) begin
                         // y / 2 rounded toward zero, with the sign of y / x
@@ -262,15 +273,14 @@ always @(*) begin
             end else if (opcode == 2'b10) begin
                 angle_shift = (z > 16'sh6F92 || z < 16'sh906E);
                 if (angle_shift)
-                    z_next = z + (z[15] ? 17'h0C910 : 17'h136F0);
+                    z_next = z_sum;
             end else if (opcode == 2'b11) begin
                 x_next = xp;
                 y_next = ym;
             end else if (opcode == 2'b01) begin
-                if (sqrt_shift) begin
-                    shift_next = sqrt_amt;
-                    shift_right_next = ~format & tooBig;
-                end
+                // REVERT undoes the shift chosen for the shifter above.
+                shift_next = sh_amt;
+                shift_right_next = ~sh_left;
                 normalized = sh_out;
                 x_next = normalized + (format ? 16'h1000 : 16'h0020);
                 y_next = normalized - (format ? 16'h1000 : 16'h0020);
@@ -278,15 +288,13 @@ always @(*) begin
         end
         LOOP:
         begin
-            one_shifted = (16'h4000 >>> iteration);
-            x_shifted = sh_out;
-            y_shifted = ((opcode == 2'b01) ? ym : y) >>> iteration;
+            x_shifted = sh_out; // x >>> iteration, from the shared shifter
+            y_shifted = (((opcode == 2'b01 && y[15]) ? negative_y : y) >>> iteration);
             y_subtract = (opcode == 2'b10) ? z[15] : ~y[15];
             x_subtract = (opcode == 2'b01) ? 1'b1 : (opcode[0] ? y[15] : ~z[15]);
-            z_subtract = (opcode == 2'b10) ? ~z[15] : y[15];
             x_next = (opcode == 2'b00)? x : (x + (y_shifted ^ {16{x_subtract}}) + x_subtract);
             y_next = y + (x_shifted ^ {16{y_subtract}}) + y_subtract;
-            z_next = z + z_subtract + ((opcode[1] ? ATAN_LUT[{iteration, 4'b0} +: 16] : one_shifted) ^ {16{z_subtract}})  ;
+            z_next = z_sum;
         end
         REVERT:
         begin
