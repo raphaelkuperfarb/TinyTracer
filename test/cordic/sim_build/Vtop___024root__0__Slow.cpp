@@ -346,7 +346,6 @@ VL_ATTR_COLD void Vtop___024root___ctor_var_reset(Vtop___024root* vlSelf) {
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__y_subtract = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 14930180766588769856ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__z_subtract = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 18016021235118055278ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__one_shifted = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 7557764306946152525ull);
-    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__z_sum = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 983603431105325715ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__repeated = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6886207335721660554ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__start = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 16246185796468183869ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__k = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 16482008820845747630ull);
@@ -355,6 +354,10 @@ VL_ATTR_COLD void Vtop___024root___ctor_var_reset(Vtop___024root* vlSelf) {
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__shift_next = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 10233822421526907053ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__shift_q = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 59510315533695709ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__shift_base = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 2093366224626832473ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__div_amt = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 5410161746248619901ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__sqrt_amt = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 1604830115057142548ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__div_shift = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 303350824283004996ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__sqrt_shift = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 4582340131248570172ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__shift_right_next = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6017681376053944049ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__shift_right_q = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 17737484830892243271ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__tooBig = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6509448985774599561ull);
