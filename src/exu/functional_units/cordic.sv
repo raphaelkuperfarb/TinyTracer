@@ -52,12 +52,10 @@ reg [15:0] one_shifted;
 reg repeated;
 wire start;
 reg [3:0] k, l, shift_diff, shift_next, shift_q, shift_base;
-reg [3:0] div_amt, sqrt_amt;
-reg div_shift, sqrt_shift;
 reg shift_right_next, shift_right_q;
 reg tooBig;
 reg signed [15:0] ym, xp, normalized;
-reg [15:0] sh_in, sh_pre, sh_out;
+reg [15:0] sh_in, sh_pre, sh_out;   // shared barrel shifter
 reg [16:0] sh_r;
 reg [3:0] sh_amt;
 reg sh_left;
@@ -155,6 +153,9 @@ always @(*) begin
     shift_right_next = shift_right_q;
     k = 4'b0;
     l = 4'b0;
+    shift_diff = 4'b0;
+    shift_base = 4'b0;
+    tooBig = 1'b0;
     angle_shift = 1'b0;
     normalized = x;
     one_shifted = 16'b0;
@@ -169,7 +170,6 @@ always @(*) begin
     // so the i = 16 step of sqrt can use a 4-bit shift amount.
     iteration = j[3:0] | {4{j[4]}};
 
-    // Normalization decode, used by NORMALIZE and by the shifter below.
     xp = x[15] ? negative_x : x;
     ym = y[15] ? negative_y : y;
     for (int i = 0; i < 15; i++) begin
@@ -178,30 +178,33 @@ always @(*) begin
         if (ym[i])
             l = i;
     end
-    div_shift = (l >= k);
-    shift_diff = l - k;
-    div_amt = (l == 4'd14) ? shift_diff : shift_diff + 1'b1;
-    tooBig = |x[14:8];
-    shift_base = k[0] ? 4'd7 : 4'd6;
-    sqrt_shift = ((tooBig | ~(x[6] | x[7])) & ~format)
-               | (~(x[13] | x[14]) & format); // under 0.5 or over 2
-    sqrt_amt = (format ? (k[0] ? 4'd13 : 4'd14) : (tooBig ? k : shift_base))
-             - ((format | ~tooBig) ? k : shift_base);
 
     // One barrel shifter, shared by every state that shifts x or z by a
     // variable amount. sh_out = sh_left ? (sh_in << sh_amt) : (sh_in >>> sh_amt);
     // a left shift is a right shift of the bit-reversed value.
     sh_in = x;
-    sh_amt = iteration;
+    sh_amt = iteration;     // LOOP: x >>> i
     sh_left = 1'b0;
     if (current_state == NORMALIZE) begin
         if (opcode == 2'b00) begin
             sh_in = xp;
-            sh_amt = div_shift ? div_amt : 4'd0;
+            sh_amt = 4'd0;
             sh_left = 1'b1;
+            if (l >= k) begin
+                shift_diff = l - k;
+                sh_amt = (l == 4'd14) ? shift_diff : shift_diff + 1'b1;
+            end
         end else begin
-            sh_amt = sqrt_shift ? sqrt_amt : 4'd0;
-            sh_left = format | ~tooBig;
+            tooBig = |x[14:8];
+            shift_base = k[0] ? 4'd7 : 4'd6;
+            sh_amt = 4'd0;
+            sh_left = 1'b1;
+            if (((tooBig | ~(x[6] | x[7])) & ~format)
+                | (~(x[13] | x[14]) & format)) begin // under 0.5 or over 2
+                sh_amt = (format ? (k[0] ? 4'd13 : 4'd14) : (tooBig ? k : shift_base))
+                       - ((format | ~tooBig) ? k : shift_base);
+                sh_left = format | ~tooBig;
+            end
         end
     end else if (current_state == REVERT) begin
         if (opcode == 2'b00) begin
@@ -251,7 +254,7 @@ always @(*) begin
                 if (x[15]) begin
                     y_next = negative_y;
                 end
-                if (div_shift) begin
+                if (l >= k) begin
                     shift_next = shift_diff + 1'b1;
                     if (l == 4'd14) begin
                         // y / 2 rounded toward zero, with the sign of y / x
@@ -267,10 +270,9 @@ always @(*) begin
                 x_next = xp;
                 y_next = ym;
             end else if (opcode == 2'b01) begin
-                if (sqrt_shift) begin
-                    shift_next = sqrt_amt;
-                    shift_right_next = ~format & tooBig;
-                end
+                // REVERT undoes the shift chosen for the shifter above.
+                shift_next = sh_amt;
+                shift_right_next = ~sh_left;
                 normalized = sh_out;
                 x_next = normalized + (format ? 16'h1000 : 16'h0020);
                 y_next = normalized - (format ? 16'h1000 : 16'h0020);
@@ -279,8 +281,8 @@ always @(*) begin
         LOOP:
         begin
             one_shifted = (16'h4000 >>> iteration);
-            x_shifted = sh_out;
-            y_shifted = ((opcode == 2'b01) ? ym : y) >>> iteration;
+            x_shifted = sh_out; // x >>> iteration, from the shared shifter
+            y_shifted = (((opcode == 2'b01 && y[15]) ? negative_y : y) >>> iteration);
             y_subtract = (opcode == 2'b10) ? z[15] : ~y[15];
             x_subtract = (opcode == 2'b01) ? 1'b1 : (opcode[0] ? y[15] : ~z[15]);
             z_subtract = (opcode == 2'b10) ? ~z[15] : y[15];
