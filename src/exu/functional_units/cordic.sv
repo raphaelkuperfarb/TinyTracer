@@ -53,6 +53,8 @@ reg [15:0] z_sum;
 reg repeated;
 wire start;
 reg [3:0] k, l, shift_diff, shift_next, shift_q, shift_base;
+reg div_shift, sqrt_shift;
+reg [3:0] sqrt_amt;
 reg shift_right_next, shift_right_q;
 reg tooBig;
 reg signed [15:0] ym, xp, normalized;
@@ -190,6 +192,11 @@ always @(*) begin
     shift_diff = l - k;
     tooBig = |x[14:8];
     shift_base = k[0] ? 4'd7 : 4'd6;
+    div_shift = (l >= k);
+    sqrt_shift = ((tooBig | ~(x[6] | x[7])) & ~format)
+               | (~(x[13] | x[14]) & format); // under 0.5 or over 2
+    sqrt_amt = (format ? (k[0] ? 4'd13 : 4'd14) : (tooBig ? k : shift_base))
+             - ((format | ~tooBig) ? k : shift_base);
 
     // One barrel shifter, shared by every state that shifts x or z by a
     // variable amount. sh_out = sh_left ? (sh_in << sh_amt) : (sh_in >>> sh_amt);
@@ -202,15 +209,11 @@ always @(*) begin
             sh_in = xp;
             sh_amt = 4'd0;
             sh_left = 1'b1;
-            if (l >= k)
+            if (div_shift)
                 sh_amt = (l == 4'd14) ? shift_diff : shift_diff + 1'b1;
         end else begin
-            sh_amt = 4'd0;
+            sh_amt = sqrt_shift ? sqrt_amt : 4'd0;
             sh_left = format | ~tooBig;
-            if (((tooBig | ~(x[6] | x[7])) & ~format)
-                | (~(x[13] | x[14]) & format)) // under 0.5 or over 2
-                sh_amt = (format ? (k[0] ? 4'd13 : 4'd14) : (tooBig ? k : shift_base))
-                       - ((format | ~tooBig) ? k : shift_base);
         end
     end else if (current_state == REVERT) begin
         if (opcode == 2'b00) begin
@@ -268,7 +271,7 @@ always @(*) begin
                 if (x[15]) begin
                     y_next = negative_y;
                 end
-                if (l >= k) begin
+                if (div_shift) begin
                     shift_next = shift_diff + 1'b1;
                     if (l == 4'd14) begin
                         // y / 2 rounded toward zero, with the sign of y / x
@@ -285,10 +288,8 @@ always @(*) begin
                 y_next = ym;
             end else if (opcode == 2'b01) begin
                 // Same shift as the shifter above, saved so REVERT can undo it.
-                if (((tooBig | ~(x[6] | x[7])) & ~format)
-                    | (~(x[13] | x[14]) & format)) begin // under 0.5 or over 2
-                    shift_next = (format ? (k[0] ? 4'd13 : 4'd14) : (tooBig ? k : shift_base))
-                               - ((format | ~tooBig) ? k : shift_base);
+                if (sqrt_shift) begin
+                    shift_next = sqrt_amt;
                     shift_right_next = ~format & tooBig;
                 end
                 normalized = sh_out;
