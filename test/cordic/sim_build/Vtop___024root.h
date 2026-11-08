@@ -22,13 +22,13 @@ class alignas(VL_CACHE_LINE_BYTES) Vtop___024root final {
     // Anonymous structures to workaround compiler member-count bugs
     struct {
         VL_IN8(clk,0,0);
+        VL_IN8(rst_n,0,0);
         VL_IN8(ui_in,7,0);
         VL_OUT8(uo_out,7,0);
         VL_IN8(uio_in,7,0);
         VL_OUT8(uio_out,7,0);
         VL_OUT8(uio_oe,7,0);
         VL_IN8(ena,0,0);
-        VL_IN8(rst_n,0,0);
         CData/*7:0*/ tt_um_cordic__DOT__ui_in;
         CData/*7:0*/ tt_um_cordic__DOT__uo_out;
         CData/*7:0*/ tt_um_cordic__DOT__uio_in;
@@ -57,10 +57,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtop___024root final {
         CData/*3:0*/ tt_um_cordic__DOT__u_cordic__DOT__shift_next;
         CData/*3:0*/ tt_um_cordic__DOT__u_cordic__DOT__shift_q;
         CData/*3:0*/ tt_um_cordic__DOT__u_cordic__DOT__shift_base;
-        CData/*3:0*/ tt_um_cordic__DOT__u_cordic__DOT__div_amt;
-        CData/*3:0*/ tt_um_cordic__DOT__u_cordic__DOT__sqrt_amt;
-        CData/*0:0*/ tt_um_cordic__DOT__u_cordic__DOT__div_shift;
-        CData/*0:0*/ tt_um_cordic__DOT__u_cordic__DOT__sqrt_shift;
         CData/*0:0*/ tt_um_cordic__DOT__u_cordic__DOT__shift_right_next;
         CData/*0:0*/ tt_um_cordic__DOT__u_cordic__DOT__shift_right_q;
         CData/*0:0*/ tt_um_cordic__DOT__u_cordic__DOT__tooBig;
@@ -72,6 +68,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vtop___024root final {
         CData/*0:0*/ tt_um_cordic__DOT__u_cordic__DOT__format;
         CData/*0:0*/ __Vtrigprevexpr___TOP__tt_um_cordic__DOT__clk__0;
         CData/*0:0*/ __Vtrigprevexpr___TOP__tt_um_cordic__DOT__u_cordic__DOT__clk__0;
+        CData/*0:0*/ __Vtrigprevexpr___TOP__tt_um_cordic__DOT__u_cordic__DOT__rst_n__0;
         SData/*15:0*/ tt_um_cordic__DOT__op1_q;
         SData/*15:0*/ tt_um_cordic__DOT__op2_q;
         SData/*15:0*/ tt_um_cordic__DOT__result_q;
@@ -85,10 +82,11 @@ class alignas(VL_CACHE_LINE_BYTES) Vtop___024root final {
         SData/*15:0*/ tt_um_cordic__DOT__u_cordic__DOT__negative_y;
         SData/*15:0*/ tt_um_cordic__DOT__u_cordic__DOT__x_shifted;
         SData/*15:0*/ tt_um_cordic__DOT__u_cordic__DOT__y_shifted;
+        SData/*15:0*/ tt_um_cordic__DOT__u_cordic__DOT__one_shifted;
+        SData/*15:0*/ tt_um_cordic__DOT__u_cordic__DOT__z_sum;
+        SData/*15:0*/ tt_um_cordic__DOT__u_cordic__DOT__ym;
     };
     struct {
-        SData/*15:0*/ tt_um_cordic__DOT__u_cordic__DOT__one_shifted;
-        SData/*15:0*/ tt_um_cordic__DOT__u_cordic__DOT__ym;
         SData/*15:0*/ tt_um_cordic__DOT__u_cordic__DOT__xp;
         SData/*15:0*/ tt_um_cordic__DOT__u_cordic__DOT__normalized;
         SData/*15:0*/ tt_um_cordic__DOT__u_cordic__DOT__sh_in;

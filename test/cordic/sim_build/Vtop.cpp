@@ -12,13 +12,13 @@ Vtop::Vtop(VerilatedContext* _vcontextp__, const char* _vcname__)
     , vlSymsp{new Vtop__Syms(contextp(), _vcname__, this)}
     , m_evalLoop{*this, /*convergeLimit:*/ 10000}
     , clk{vlSymsp->TOP.clk}
+    , rst_n{vlSymsp->TOP.rst_n}
     , ui_in{vlSymsp->TOP.ui_in}
     , uo_out{vlSymsp->TOP.uo_out}
     , uio_in{vlSymsp->TOP.uio_in}
     , uio_out{vlSymsp->TOP.uio_out}
     , uio_oe{vlSymsp->TOP.uio_oe}
     , ena{vlSymsp->TOP.ena}
-    , rst_n{vlSymsp->TOP.rst_n}
     , __PVT__tinytracer_pkg{vlSymsp->TOP.__PVT__tinytracer_pkg}
     , __PVT__tt_um_cordic__DOT__fu{vlSymsp->TOP.__PVT__tt_um_cordic__DOT__fu}
     , rootp{&(vlSymsp->TOP)}
@@ -228,6 +228,6 @@ VL_ATTR_COLD void Vtop::traceBaseModel(VerilatedTraceBaseC* tfp, int levels, int
             " use --trace-fst with VerilatedFst object, and --trace-vcd with VerilatedVcd object");
     }
     stfp->spTrace()->addModel(this);
-    stfp->spTrace()->addInitCb(&trace_init, &(vlSymsp->TOP), name(), false, 111);
+    stfp->spTrace()->addInitCb(&trace_init, &(vlSymsp->TOP), name(), false, 108);
     Vtop___024root__trace_register(&(vlSymsp->TOP), stfp->spTrace());
 }

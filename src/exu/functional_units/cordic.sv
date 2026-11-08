@@ -49,6 +49,7 @@ reg signed [15:0] x_shifted, y_shifted;
 reg x_subtract, y_subtract;
 reg z_subtract;
 reg [15:0] one_shifted;
+reg [15:0] z_sum;
 reg repeated;
 wire start;
 reg [3:0] k, l, shift_diff, shift_next, shift_q, shift_base;
@@ -69,35 +70,47 @@ reg format;
 
 assign start = fu.req_valid && !(fu.req_opcode == 2'b01 && fu.req_op1[15] == 1'b1);
 
-// Only the FSM is reset: every datapath register is loaded before it is read.
-always @(posedge clk) begin
-    if (!rst_n)
+// Every register gets the async reset: IHP flops all have a reset pin, and
+// wiring it to rst_n instead of tying it high saves a tie cell per flop.
+always @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
         current_state <= IDLE;
-    else
+        x <= 16'b0;
+        y <= 16'b0;
+        z <= 16'b0;
+        shift_q <= 4'b0;
+        shift_right_q <= 1'b0;
+        angle_shift_q <= 1'b0;
+        opcode <= 2'b0;
+        format <= 1'b0;
+        repeated <= 1'b0;
+        j <= 5'b0;
+    end else begin
         current_state <= next_state;
 
-    x <= x_next;
-    y <= y_next;
-    z <= z_next;
-    shift_q <= shift_next;
-    shift_right_q <= shift_right_next;
+        x <= x_next;
+        y <= y_next;
+        z <= z_next;
+        shift_q <= shift_next;
+        shift_right_q <= shift_right_next;
 
-    if (current_state == NORMALIZE)
-        angle_shift_q <= angle_shift;
+        if (current_state == NORMALIZE)
+            angle_shift_q <= angle_shift;
 
-    if (current_state == IDLE && start) begin
-        opcode <= fu.req_opcode[1:0];
-        format <= fu.req_fmt;
-        repeated <= 1'b0;
-        j <= {4'b0, fu.req_opcode[1:0] == 2'b01}; // sqrt starts at i = 1, the rest at i = 0
-    end else if (current_state == LOOP) begin
-        if ((~j[1] & j[2] & ~(j[3]^j[0]))
-            && opcode == 2'b01 && !repeated)  begin// 4 or 13
-            j <= j;
-            repeated <= 1'b1;
-        end else begin
-            j <=  j+1;
+        if (current_state == IDLE && start) begin
+            opcode <= fu.req_opcode[1:0];
+            format <= fu.req_fmt;
             repeated <= 1'b0;
+            j <= {4'b0, fu.req_opcode[1:0] == 2'b01}; // sqrt starts at i = 1, the rest at i = 0
+        end else if (current_state == LOOP) begin
+            if ((~j[1] & j[2] & ~(j[3]^j[0]))
+                && opcode == 2'b01 && !repeated)  begin// 4 or 13
+                j <= j;
+                repeated <= 1'b1;
+            end else begin
+                j <=  j+1;
+                repeated <= 1'b0;
+            end
         end
     end
 end
@@ -153,12 +166,8 @@ always @(*) begin
     shift_right_next = shift_right_q;
     k = 4'b0;
     l = 4'b0;
-    shift_diff = 4'b0;
-    shift_base = 4'b0;
-    tooBig = 1'b0;
     angle_shift = 1'b0;
     normalized = x;
-    one_shifted = 16'b0;
     x_shifted = 16'b0;
     y_shifted = 16'b0;
     postscale_x = 17'b0;
@@ -178,6 +187,9 @@ always @(*) begin
         if (ym[i])
             l = i;
     end
+    shift_diff = l - k;
+    tooBig = |x[14:8];
+    shift_base = k[0] ? 4'd7 : 4'd6;
 
     // One barrel shifter, shared by every state that shifts x or z by a
     // variable amount. sh_out = sh_left ? (sh_in << sh_amt) : (sh_in >>> sh_amt);
@@ -190,21 +202,15 @@ always @(*) begin
             sh_in = xp;
             sh_amt = 4'd0;
             sh_left = 1'b1;
-            if (l >= k) begin
-                shift_diff = l - k;
+            if (l >= k)
                 sh_amt = (l == 4'd14) ? shift_diff : shift_diff + 1'b1;
-            end
         end else begin
-            tooBig = |x[14:8];
-            shift_base = k[0] ? 4'd7 : 4'd6;
             sh_amt = 4'd0;
-            sh_left = 1'b1;
+            sh_left = format | ~tooBig;
             if (((tooBig | ~(x[6] | x[7])) & ~format)
-                | (~(x[13] | x[14]) & format)) begin // under 0.5 or over 2
+                | (~(x[13] | x[14]) & format)) // under 0.5 or over 2
                 sh_amt = (format ? (k[0] ? 4'd13 : 4'd14) : (tooBig ? k : shift_base))
                        - ((format | ~tooBig) ? k : shift_base);
-                sh_left = format | ~tooBig;
-            end
         end
     end else if (current_state == REVERT) begin
         if (opcode == 2'b00) begin
@@ -221,6 +227,14 @@ always @(*) begin
     sh_r = $signed({~sh_left & sh_in[15], sh_pre}) >>> sh_amt;
     for (int i = 0; i < 16; i++)
         sh_out[i] = sh_left ? sh_r[15-i] : sh_r[i];
+
+    // One z adder, shared by LOOP and the cosine angle shift in NORMALIZE,
+    // which adds +pi (16'hC910) or -pi (16'h36F0) to z.
+    one_shifted = (16'h4000 >>> iteration);
+    if (current_state == LOOP)
+        z_subtract = (opcode == 2'b10) ? ~z[15] : y[15];
+    z_sum = z + z_subtract + (((current_state == LOOP) ? (opcode[1] ? ATAN_LUT[{iteration, 4'b0} +: 16] : one_shifted)
+                                                       : (z[15] ? 16'hC910 : 16'h36F0)) ^ {16{z_subtract}});
 
     case(current_state)
         IDLE:
@@ -265,14 +279,18 @@ always @(*) begin
             end else if (opcode == 2'b10) begin
                 angle_shift = (z > 16'sh6F92 || z < 16'sh906E);
                 if (angle_shift)
-                    z_next = z + (z[15] ? 17'h0C910 : 17'h136F0);
+                    z_next = z_sum;
             end else if (opcode == 2'b11) begin
                 x_next = xp;
                 y_next = ym;
             end else if (opcode == 2'b01) begin
-                // REVERT undoes the shift chosen for the shifter above.
-                shift_next = sh_amt;
-                shift_right_next = ~sh_left;
+                // Same shift as the shifter above, saved so REVERT can undo it.
+                if (((tooBig | ~(x[6] | x[7])) & ~format)
+                    | (~(x[13] | x[14]) & format)) begin // under 0.5 or over 2
+                    shift_next = (format ? (k[0] ? 4'd13 : 4'd14) : (tooBig ? k : shift_base))
+                               - ((format | ~tooBig) ? k : shift_base);
+                    shift_right_next = ~format & tooBig;
+                end
                 normalized = sh_out;
                 x_next = normalized + (format ? 16'h1000 : 16'h0020);
                 y_next = normalized - (format ? 16'h1000 : 16'h0020);
@@ -280,15 +298,13 @@ always @(*) begin
         end
         LOOP:
         begin
-            one_shifted = (16'h4000 >>> iteration);
             x_shifted = sh_out; // x >>> iteration, from the shared shifter
-            y_shifted = (((opcode == 2'b01 && y[15]) ? negative_y : y) >>> iteration);
+            y_shifted = ((opcode == 2'b01) ? ym : y) >>> iteration;
             y_subtract = (opcode == 2'b10) ? z[15] : ~y[15];
             x_subtract = (opcode == 2'b01) ? 1'b1 : (opcode[0] ? y[15] : ~z[15]);
-            z_subtract = (opcode == 2'b10) ? ~z[15] : y[15];
             x_next = (opcode == 2'b00)? x : (x + (y_shifted ^ {16{x_subtract}}) + x_subtract);
             y_next = y + (x_shifted ^ {16{y_subtract}}) + y_subtract;
-            z_next = z + z_subtract + ((opcode[1] ? ATAN_LUT[{iteration, 4'b0} +: 16] : one_shifted) ^ {16{z_subtract}})  ;
+            z_next = z_sum;
         end
         REVERT:
         begin
