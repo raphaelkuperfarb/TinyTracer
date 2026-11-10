@@ -72,6 +72,8 @@ reg [15:0] x_next, y_next, z_next;
 reg repeated;
 reg signed [5:0] k, k_next;        // normalization shift, held for REVERT
 reg flip, flip_next;               // cosine angle folded by +-pi, held for REVERT
+reg signed [31:0] scale_input;     // signed copy of x
+reg signed [31:0] scale_result;    // wider scaling result
 
 // ---------------------------------------------------------------------------
 // NORMALIZE
@@ -161,6 +163,8 @@ always @(*) begin
     z_next = z;
     k_next = k;
     flip_next = flip;
+    scale_input = {{16{x[15]}}, x}; // preserve sign
+    scale_result = scale_input;     // default: no scaling
     case(current_state)
         IDLE: begin
             
@@ -241,7 +245,33 @@ always @(*) begin
             
         end
         POSTSCALE: begin
-            
+            // cosine / vector magnitude
+            if (fu.req_opcode[1:0] == 2'b01 ||
+                fu.req_opcode[1:0] == 2'b10) begin
+                scale_result = (scale_input >>> 1)
+                            + (scale_input >>> 3)
+                            - (scale_input >>> 6)
+                            - (scale_input >>> 9)
+                            - (scale_input >>> 13);
+
+            // square root
+            end else if (fu.req_opcode[1:0] == 2'b11) begin
+                scale_result = scale_input
+                            + (scale_input >>> 2)
+                            - (scale_input >>> 5)
+                            - (scale_input >>> 7)
+                            - (scale_input >>> 8)
+                            + (scale_input >>> 11);
+            end
+
+            // saturate before storing in 16 bits
+            if (scale_result > 32'sd32767) begin
+                x_next = 16'h7FFF;
+            end else if (scale_result < -32'sd32768) begin
+                x_next = 16'h8000;
+            end else begin
+                x_next = scale_result[15:0];
+            end
         end
     endcase
 end
