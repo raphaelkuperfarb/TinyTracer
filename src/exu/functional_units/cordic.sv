@@ -70,6 +70,41 @@ reg [3:0] j;
 reg [15:0] x, y, z;
 reg [15:0] x_next, y_next, z_next;
 reg repeated;
+reg signed [5:0] k, k_next;        // normalization shift, held for REVERT
+reg flip, flip_next;               // cosine angle folded by +-pi, held for REVERT
+
+// ---------------------------------------------------------------------------
+// NORMALIZE
+// ---------------------------------------------------------------------------
+// Leading-one detect: index of the highest set bit (0 when v == 0)
+function automatic [3:0] msb_index(input [15:0] v);
+    integer i;
+    begin
+        msb_index = 4'd0;
+        for (i = 0; i < 16; i = i + 1)
+            if (v[i]) msb_index = i[3:0];
+    end
+endfunction
+
+wire [15:0] div_x  = B_in[15] ? -B_in : B_in;
+wire [15:0] div_y  = B_in[15] ? -A_in : A_in;
+wire [3:0]  div_px = msb_index(div_x);
+wire [3:0]  div_py = msb_index(div_y[15] ? -div_y : div_y);
+wire [4:0]  div_k  = (div_py >= div_px) ? (div_py - div_px + 5'd1) : 5'd0;
+
+// Cosine: fold the angle into [-pi/2, pi/2] with +-pi, cos(B -+ pi) = -cos(B).
+// pi doesn't fit signed Q2.14, but the 16-bit sum wraps to the right value.
+localparam [15:0] PI      = 16'd51472;
+localparam [15:0] HALF_PI = 16'd25736; 
+wire cos_hi = $signed(B_in) >  $signed(HALF_PI);
+wire cos_lo = $signed(B_in) < -$signed(HALF_PI);
+
+// Square root: w' = w * 2^(-2k) in [0.5, 2), k = ceil((p - F) / 2)
+wire [3:0]        sq_p = msb_index(A_in);
+wire signed [5:0] sq_f = (fu.req_fmt == tinytracer_pkg::FMT_DIR) ? 6'sd14 : 6'sd7;
+wire signed [5:0] sq_k = ($signed({2'b00, sq_p}) - sq_f + 6'sd1) >>> 1;
+wire signed [5:0] sq_s = 6'sd14 - sq_f - (sq_k <<< 1);
+wire [15:0]       sq_w = (sq_s >= 0) ? (A_in << sq_s) : (A_in >> -sq_s);
 
 
 
@@ -85,6 +120,8 @@ always @(posedge clk) begin
         x <= x_next;
         y <= y_next;
         z <= z_next;
+        k <= k_next;
+        flip <= flip_next;
 
         cycles_completed <= cycles_completed + 1;
         if (current_state == LOOP) begin
@@ -122,6 +159,8 @@ always @(*) begin
     x_next = x;
     y_next = y;
     z_next = z;
+    k_next = k;
+    flip_next = flip;
     case(current_state)
         IDLE: begin
             
@@ -130,7 +169,31 @@ always @(*) begin
             
         end
         NORMALIZE: begin
-            
+            z_next = 16'h0000;
+            k_next = 6'sd0;
+            flip_next = 1'b0;
+            case (opcode)
+                tinytracer_pkg::CORDIC_DIV: begin
+                    x_next = div_x;
+                    y_next = $signed(div_y) >>> div_k;
+                    k_next = {1'b0, div_k};
+                end
+                tinytracer_pkg::CORDIC_COS: begin
+                    x_next = A_in;
+                    y_next = 16'h0000;
+                    z_next = cos_hi ? (B_in - PI) : cos_lo ? (B_in + PI) : B_in;
+                    flip_next = cos_hi | cos_lo;
+                end
+                tinytracer_pkg::CORDIC_MAG: begin
+                    x_next = A_in[15] ? -A_in : A_in;
+                    y_next = B_in[15] ? -B_in : B_in;
+                end
+                tinytracer_pkg::CORDIC_SQRT: begin
+                    x_next = sq_w + 16'h1000;   // w' + 0.25
+                    y_next = sq_w - 16'h1000;   // w' - 0.25
+                    k_next = sq_k;
+                end
+            endcase
         end
         LOOP: begin
             if (fu.req_opcode[1:0] == 2'b00) begin
