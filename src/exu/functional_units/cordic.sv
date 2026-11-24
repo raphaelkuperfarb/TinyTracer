@@ -217,7 +217,26 @@ always @(*) begin
             z_next = z_sum;
         end
         REVERT: begin
-            
+            if (k != 6'sd0) begin
+                case (opcode)
+                    tinytracer_pkg::CORDIC_DIV: begin
+                        // Undo division normalization: multiply by 2^k
+                        z_next = $signed(z) <<< $unsigned(k);
+                    end
+
+                    tinytracer_pkg::CORDIC_SQRT: begin
+                        // Undo sqrt normalization: multiply by 2^k
+                        if (k > 0)
+                            x_next = $signed(x) <<< $unsigned(k);
+                        else
+                            x_next = $signed(x) >>> $unsigned(-k);
+                    end
+
+                    default: begin
+                        // COS and MAG require no reversion
+                    end
+                endcase
+            end
         end
         POSTSCALE: begin
             // cosine / vector magnitude
