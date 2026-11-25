@@ -190,13 +190,15 @@ always @(*) begin
             l = i;
     end
     shift_diff = l - k;
-    tooBig = |x[14:8];
-    shift_base = k[0] ? 4'd7 : 4'd6;
+    // Sqrt normalizes its input by an even shift, moving the leading one to
+    // the bit with the same parity as k: bit 6 or 7 for Q9.7, so w in [0.5, 2),
+    // and bit 12 or 13 for Q2.14, so w in [0.25, 1). Q2.14 can't use [0.5, 2):
+    // x = w + 0.25 would overflow past 2.0 for w >= 1.75.
+    tooBig = format ? x[14] : |x[14:8];
+    shift_base = (format ? 4'd12 : 4'd6) | k[0];
     div_shift = (l >= k);
-    sqrt_shift = ((tooBig | ~(x[6] | x[7])) & ~format)
-               | (~(x[13] | x[14]) & format); // under 0.5 or over 2
-    sqrt_amt = (format ? (k[0] ? 4'd13 : 4'd14) : (tooBig ? k : shift_base))
-             - ((format | ~tooBig) ? k : shift_base);
+    sqrt_shift = tooBig | ~(format ? (x[12] | x[13]) : (x[6] | x[7])); // outside the window
+    sqrt_amt = tooBig ? k - shift_base : shift_base - k;
 
     // One barrel shifter, shared by every state that shifts x or z by a
     // variable amount. sh_out = sh_left ? (sh_in << sh_amt) : (sh_in >>> sh_amt);
@@ -213,7 +215,7 @@ always @(*) begin
                 sh_amt = (l == 4'd14) ? shift_diff : shift_diff + 1'b1;
         end else begin
             sh_amt = sqrt_shift ? sqrt_amt : 4'd0;
-            sh_left = format | ~tooBig;
+            sh_left = ~tooBig;
         end
     end else if (current_state == REVERT) begin
         if (opcode == 2'b00) begin
@@ -290,7 +292,7 @@ always @(*) begin
                 // Same shift as the shifter above, saved so REVERT can undo it.
                 if (sqrt_shift) begin
                     shift_next = sqrt_amt;
-                    shift_right_next = ~format & tooBig;
+                    shift_right_next = tooBig;
                 end
                 normalized = sh_out;
                 x_next = normalized + (format ? 16'h1000 : 16'h0020);
