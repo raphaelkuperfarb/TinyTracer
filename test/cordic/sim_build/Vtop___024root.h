@@ -75,34 +75,34 @@ class alignas(VL_CACHE_LINE_BYTES) Vtop___024root final {
         SData/*15:0*/ tt_um_cordic__DOT__op1_q;
         SData/*15:0*/ tt_um_cordic__DOT__op2_q;
         SData/*15:0*/ tt_um_cordic__DOT__result_q;
-        SData/*15:0*/ tt_um_cordic__DOT__u_cordic__DOT__postscale_result;
-        IData/*19:0*/ tt_um_cordic__DOT__u_cordic__DOT__x;
-        IData/*19:0*/ tt_um_cordic__DOT__u_cordic__DOT__y;
-        IData/*19:0*/ tt_um_cordic__DOT__u_cordic__DOT__x_next;
-        IData/*19:0*/ tt_um_cordic__DOT__u_cordic__DOT__y_next;
-        IData/*16:0*/ tt_um_cordic__DOT__u_cordic__DOT__z;
-        IData/*16:0*/ tt_um_cordic__DOT__u_cordic__DOT__z_next;
-        IData/*19:0*/ tt_um_cordic__DOT__u_cordic__DOT__negative_x;
-        IData/*19:0*/ tt_um_cordic__DOT__u_cordic__DOT__negative_y;
-        IData/*19:0*/ tt_um_cordic__DOT__u_cordic__DOT__x_shifted;
+        SData/*15:0*/ tt_um_cordic__DOT__u_cordic__DOT__x;
+        SData/*15:0*/ tt_um_cordic__DOT__u_cordic__DOT__y;
+        SData/*15:0*/ tt_um_cordic__DOT__u_cordic__DOT__x_next;
+        SData/*15:0*/ tt_um_cordic__DOT__u_cordic__DOT__y_next;
+        SData/*15:0*/ tt_um_cordic__DOT__u_cordic__DOT__z;
+        SData/*15:0*/ tt_um_cordic__DOT__u_cordic__DOT__z_next;
+        SData/*15:0*/ tt_um_cordic__DOT__u_cordic__DOT__negative_x;
+        SData/*15:0*/ tt_um_cordic__DOT__u_cordic__DOT__negative_y;
+        SData/*15:0*/ tt_um_cordic__DOT__u_cordic__DOT__x_shifted;
+        SData/*15:0*/ tt_um_cordic__DOT__u_cordic__DOT__y_shifted;
     };
     struct {
-        IData/*19:0*/ tt_um_cordic__DOT__u_cordic__DOT__y_shifted;
-        IData/*16:0*/ tt_um_cordic__DOT__u_cordic__DOT__one_shifted;
-        IData/*16:0*/ tt_um_cordic__DOT__u_cordic__DOT__z_sum;
-        IData/*19:0*/ tt_um_cordic__DOT__u_cordic__DOT__ym;
-        IData/*19:0*/ tt_um_cordic__DOT__u_cordic__DOT__xp;
-        IData/*19:0*/ tt_um_cordic__DOT__u_cordic__DOT__normalized;
-        IData/*19:0*/ tt_um_cordic__DOT__u_cordic__DOT__sh_in;
-        IData/*19:0*/ tt_um_cordic__DOT__u_cordic__DOT__sh_pre;
-        IData/*19:0*/ tt_um_cordic__DOT__u_cordic__DOT__sh_out;
-        IData/*20:0*/ tt_um_cordic__DOT__u_cordic__DOT__sh_r;
-        IData/*20:0*/ tt_um_cordic__DOT__u_cordic__DOT__postscale_x;
+        SData/*15:0*/ tt_um_cordic__DOT__u_cordic__DOT__one_shifted;
+        SData/*15:0*/ tt_um_cordic__DOT__u_cordic__DOT__z_sum;
+        SData/*15:0*/ tt_um_cordic__DOT__u_cordic__DOT__ym;
+        SData/*15:0*/ tt_um_cordic__DOT__u_cordic__DOT__xp;
+        SData/*15:0*/ tt_um_cordic__DOT__u_cordic__DOT__normalized;
+        SData/*15:0*/ tt_um_cordic__DOT__u_cordic__DOT__sh_in;
+        SData/*15:0*/ tt_um_cordic__DOT__u_cordic__DOT__sh_pre;
+        SData/*15:0*/ tt_um_cordic__DOT__u_cordic__DOT__sh_out;
+        SData/*15:0*/ tt_um_cordic__DOT__u_cordic__DOT__postscale_result;
+        IData/*16:0*/ tt_um_cordic__DOT__u_cordic__DOT__sh_r;
+        IData/*16:0*/ tt_um_cordic__DOT__u_cordic__DOT__postscale_x;
+        IData/*30:0*/ tt_um_cordic__DOT__u_cordic__DOT__postscale_39x;
+        IData/*30:0*/ tt_um_cordic__DOT__u_cordic__DOT__postscale_product;
         IData/*31:0*/ tt_um_cordic__DOT__u_cordic__DOT__unnamedblk1__DOT__i;
         IData/*31:0*/ tt_um_cordic__DOT__u_cordic__DOT__unnamedblk2__DOT__i;
         IData/*31:0*/ tt_um_cordic__DOT__u_cordic__DOT__unnamedblk3__DOT__i;
-        QData/*34:0*/ tt_um_cordic__DOT__u_cordic__DOT__postscale_39x;
-        QData/*34:0*/ tt_um_cordic__DOT__u_cordic__DOT__postscale_product;
         VlUnpacked<QData/*63:0*/, 1> __VstlTriggered;
         VlUnpacked<QData/*63:0*/, 1> __VicoTriggered;
         VlUnpacked<QData/*63:0*/, 1> __VactTriggered;
@@ -120,16 +120,13 @@ class alignas(VL_CACHE_LINE_BYTES) Vtop___024root final {
     static constexpr CData/*2:0*/ tt_um_cordic__DOT__u_cordic__DOT__LOOP = 2U;
     static constexpr CData/*2:0*/ tt_um_cordic__DOT__u_cordic__DOT__REVERT = 6U;
     static constexpr CData/*2:0*/ tt_um_cordic__DOT__u_cordic__DOT__POSTSCALE = 4U;
+    static constexpr SData/*15:0*/ tt_um_cordic__DOT__u_cordic__DOT__SQRT_C_DIR = 0x1000U;
+    static constexpr SData/*15:0*/ tt_um_cordic__DOT__u_cordic__DOT__SQRT_C_POS = 0x0020U;
     static constexpr IData/*31:0*/ tt_um_cordic__DOT__u_cordic__DOT__ITER = 0x00000010U;
-    static constexpr IData/*31:0*/ tt_um_cordic__DOT__u_cordic__DOT__G = 4U;
-    static constexpr IData/*31:0*/ tt_um_cordic__DOT__u_cordic__DOT__W = 0x00000014U;
-    static constexpr VlWide<9>/*271:0*/ tt_um_cordic__DOT__u_cordic__DOT__ATAN_LUT = VlWide<9>{{
-            0x76b26488, 0x7f587d70, 0x80007fd0, 0x80008000,
-            0x80008000, 0x80008000, 0x80008000, 0x80008000,
-            0x00000000
+    static constexpr VlWide<8>/*255:0*/ tt_um_cordic__DOT__u_cordic__DOT__ATAN_LUT = VlWide<8>{{
+            0x1dac3244, 0x07f50fae, 0x020003ff, 0x00800100,
+            0x00200040, 0x00080010, 0x00020004, 0x00010001
     }};
-    static constexpr IData/*19:0*/ tt_um_cordic__DOT__u_cordic__DOT__SQRT_C_DIR = 0x00010000U;
-    static constexpr IData/*19:0*/ tt_um_cordic__DOT__u_cordic__DOT__SQRT_C_POS = 0x00000200U;
 
     // CONSTRUCTORS
     Vtop___024root(Vtop__Syms* symsp, const char* namep);

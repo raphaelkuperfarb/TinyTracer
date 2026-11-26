@@ -112,7 +112,8 @@ async def cordic_operations(dut):
     # SQRT POS (Q9.7, fmt=0). Normalization moves the leading one to bit 6 or 7
     # (w in [0.5, 2)): inputs below shift left, inputs of 2.0 and up shift right.
     for value in [
-        0x0000,  # 0: can't be normalized
+        0x0000,  # 0: can't be normalized, forced to 0
+        0xFF80,  # -1.0: negative input returns 0
         0x0001,  # smallest input: largest left shift (odd bit)
         0x0002,  # smallest even-bit input
         0x003F,  # just below 0.5: left shift
@@ -125,13 +126,15 @@ async def cordic_operations(dut):
         0x4000,  # 128.0: top bit, largest right shift
         0x7FFF,  # largest input
     ]:
-        root = math.sqrt(signed16(value) / q7)
+        root = math.sqrt(max(0, signed16(value)) / q7)
         cases.append((0b01, value, 0x0000, round(root * q7), 8, 7, 0))
 
     # SQRT DIR (Q2.14, fmt=1). Normalization moves the leading one to bit 12 or 13
     # (w in [0.25, 1)): inputs below shift left, inputs of 1.0 and up shift right.
     for value in [
-        0x0000,  # 0: can't be normalized
+        0x0000,  # 0: can't be normalized, forced to 0
+        0xFFFF,  # smallest negative input: returns 0
+        0x8000,  # -2.0, most negative input: returns 0
         0x0001,  # smallest input: largest left shift (odd bit)
         0x0002,  # smallest even-bit input
         0x0FFF,  # just below 0.25: left shift by 2
@@ -143,7 +146,7 @@ async def cordic_operations(dut):
         0x7000,  # 1.75: overflowed under the old [0.5, 2) window
         0x7FFF,  # largest input
     ]:
-        root = math.sqrt(signed16(value) / q14)
+        root = math.sqrt(max(0, signed16(value)) / q14)
         cases.append((0b01, value, 0x0000, round(root * q14), 12, 14, 1))
 
     # COS (Q2.14, angle in radians). Angles beyond +-1.7433 (0x6F92 / 0x906E)

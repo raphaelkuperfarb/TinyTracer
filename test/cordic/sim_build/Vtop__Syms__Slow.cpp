@@ -65,24 +65,24 @@ extern const VlVarTableEntry Vtop___024root__VpiVarTable3[] = {
     {"j", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__j), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {4, 0, 0, 0, 0, 0}},
     {"k", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__k), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {3, 0, 0, 0, 0, 0}},
     {"l", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__l), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {3, 0, 0, 0, 0, 0}},
-    {"negative_x", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__negative_x), VLVT_UINT32, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {19, 0, 0, 0, 0, 0}},
-    {"negative_y", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__negative_y), VLVT_UINT32, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {19, 0, 0, 0, 0, 0}},
+    {"negative_x", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__negative_x), VLVT_UINT16, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {15, 0, 0, 0, 0, 0}},
+    {"negative_y", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__negative_y), VLVT_UINT16, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {15, 0, 0, 0, 0, 0}},
     {"next_state", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__next_state), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {2, 0, 0, 0, 0, 0}},
-    {"normalized", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__normalized), VLVT_UINT32, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {19, 0, 0, 0, 0, 0}},
-    {"one_shifted", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__one_shifted), VLVT_UINT32, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {16, 0, 0, 0, 0, 0}},
+    {"normalized", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__normalized), VLVT_UINT16, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {15, 0, 0, 0, 0, 0}},
+    {"one_shifted", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__one_shifted), VLVT_UINT16, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {15, 0, 0, 0, 0, 0}},
     {"opcode", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__opcode), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {1, 0, 0, 0, 0, 0}},
-    {"postscale_39x", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__postscale_39x), VLVT_UINT64, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {34, 0, 0, 0, 0, 0}},
-    {"postscale_product", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__postscale_product), VLVT_UINT64, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {34, 0, 0, 0, 0, 0}},
+    {"postscale_39x", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__postscale_39x), VLVT_UINT32, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {30, 0, 0, 0, 0, 0}},
+    {"postscale_product", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__postscale_product), VLVT_UINT32, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {30, 0, 0, 0, 0, 0}},
     {"postscale_result", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__postscale_result), VLVT_UINT16, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {15, 0, 0, 0, 0, 0}},
-    {"postscale_x", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__postscale_x), VLVT_UINT32, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {20, 0, 0, 0, 0, 0}},
+    {"postscale_x", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__postscale_x), VLVT_UINT32, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {16, 0, 0, 0, 0, 0}},
     {"repeated", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__repeated), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 0, {0, 0, 0, 0, 0, 0}},
     {"rst_n", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__rst_n), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW|VLVF_CONTINUOUSLY), 0, 0, {0, 0, 0, 0, 0, 0}},
     {"sh_amt", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__sh_amt), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {4, 0, 0, 0, 0, 0}},
-    {"sh_in", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__sh_in), VLVT_UINT32, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {19, 0, 0, 0, 0, 0}},
+    {"sh_in", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__sh_in), VLVT_UINT16, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {15, 0, 0, 0, 0, 0}},
     {"sh_left", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__sh_left), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 0, {0, 0, 0, 0, 0, 0}},
-    {"sh_out", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__sh_out), VLVT_UINT32, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {19, 0, 0, 0, 0, 0}},
-    {"sh_pre", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__sh_pre), VLVT_UINT32, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {19, 0, 0, 0, 0, 0}},
-    {"sh_r", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__sh_r), VLVT_UINT32, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {20, 0, 0, 0, 0, 0}},
+    {"sh_out", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__sh_out), VLVT_UINT16, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {15, 0, 0, 0, 0, 0}},
+    {"sh_pre", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__sh_pre), VLVT_UINT16, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {15, 0, 0, 0, 0, 0}},
+    {"sh_r", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__sh_r), VLVT_UINT32, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {16, 0, 0, 0, 0, 0}},
     {"shift_base", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__shift_base), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {3, 0, 0, 0, 0, 0}},
     {"shift_diff", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__shift_diff), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {3, 0, 0, 0, 0, 0}},
     {"shift_next", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__shift_next), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {3, 0, 0, 0, 0, 0}},
@@ -93,20 +93,20 @@ extern const VlVarTableEntry Vtop___024root__VpiVarTable3[] = {
     {"sqrt_shift", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__sqrt_shift), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 0, {0, 0, 0, 0, 0, 0}},
     {"start", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__start), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW|VLVF_CONTINUOUSLY|VLVF_NET), 0, 0, {0, 0, 0, 0, 0, 0}},
     {"tooBig", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__tooBig), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 0, {0, 0, 0, 0, 0, 0}},
-    {"x", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__x), VLVT_UINT32, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {19, 0, 0, 0, 0, 0}},
-    {"x_next", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__x_next), VLVT_UINT32, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {19, 0, 0, 0, 0, 0}},
-    {"x_shifted", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__x_shifted), VLVT_UINT32, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {19, 0, 0, 0, 0, 0}},
+    {"x", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__x), VLVT_UINT16, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {15, 0, 0, 0, 0, 0}},
+    {"x_next", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__x_next), VLVT_UINT16, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {15, 0, 0, 0, 0, 0}},
+    {"x_shifted", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__x_shifted), VLVT_UINT16, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {15, 0, 0, 0, 0, 0}},
     {"x_subtract", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__x_subtract), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 0, {0, 0, 0, 0, 0, 0}},
-    {"xp", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__xp), VLVT_UINT32, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {19, 0, 0, 0, 0, 0}},
-    {"y", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__y), VLVT_UINT32, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {19, 0, 0, 0, 0, 0}},
-    {"y_next", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__y_next), VLVT_UINT32, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {19, 0, 0, 0, 0, 0}},
-    {"y_shifted", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__y_shifted), VLVT_UINT32, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {19, 0, 0, 0, 0, 0}},
+    {"xp", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__xp), VLVT_UINT16, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {15, 0, 0, 0, 0, 0}},
+    {"y", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__y), VLVT_UINT16, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {15, 0, 0, 0, 0, 0}},
+    {"y_next", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__y_next), VLVT_UINT16, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {15, 0, 0, 0, 0, 0}},
+    {"y_shifted", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__y_shifted), VLVT_UINT16, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {15, 0, 0, 0, 0, 0}},
     {"y_subtract", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__y_subtract), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 0, {0, 0, 0, 0, 0, 0}},
-    {"ym", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__ym), VLVT_UINT32, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {19, 0, 0, 0, 0, 0}},
-    {"z", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__z), VLVT_UINT32, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {16, 0, 0, 0, 0, 0}},
-    {"z_next", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__z_next), VLVT_UINT32, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {16, 0, 0, 0, 0, 0}},
+    {"ym", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__ym), VLVT_UINT16, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {15, 0, 0, 0, 0, 0}},
+    {"z", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__z), VLVT_UINT16, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {15, 0, 0, 0, 0, 0}},
+    {"z_next", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__z_next), VLVT_UINT16, (VLVD_NODIR|VLVF_PUB_RW|VLVF_SIGNED), 0, 1, {15, 0, 0, 0, 0, 0}},
     {"z_subtract", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__z_subtract), VLVT_UINT8, (VLVD_NODIR|VLVF_PUB_RW), 0, 0, {0, 0, 0, 0, 0, 0}},
-    {"z_sum", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__z_sum), VLVT_UINT32, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {16, 0, 0, 0, 0, 0}},
+    {"z_sum", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__z_sum), VLVT_UINT16, (VLVD_NODIR|VLVF_PUB_RW), 0, 1, {15, 0, 0, 0, 0, 0}},
 };
 extern const VlVarTableEntry Vtop___024root__VpiVarTable4[] = {
     {"i", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__unnamedblk1__DOT__i), VLVT_UINT32, (VLVD_NODIR|VLVF_PUB_RW|VLVF_DPI_CLAY|VLVF_SIGNED), 0, 1, {31, 0, 0, 0, 0, 0}},
@@ -139,7 +139,7 @@ Vtop__Syms::Vtop__Syms(VerilatedContext* contextp, const char* namep, Vtop* mode
     , TOP{this, namep}
 {
     // Check resources
-    Verilated::stackCheck(200);
+    Verilated::stackCheck(188);
     // Setup sub module instances
     TOP__tinytracer_pkg.ctor(this, "tinytracer_pkg");
     TOP__tt_um_cordic__DOT__fu.ctor(this, "tt_um_cordic.fu");
@@ -197,8 +197,7 @@ Vtop__Syms::Vtop__Syms(VerilatedContext* contextp, const char* namep, Vtop* mode
     __Vscopep_tt_um_cordic->varsInsertFromTable(Vtop___024root__VpiVarTable1, 14, &(TOP));
     __Vscopep_tt_um_cordic__fu->varsInsertFromTable(Vtop_fu_if__VpiVarTable2, 8, &(TOP__tt_um_cordic__DOT__fu));
     __Vscopep_tt_um_cordic__u_cordic->varsInsertFromTable(Vtop___024root__VpiVarTable3, 52, &(TOP));
-    __Vscopep_tt_um_cordic__u_cordic->varInsert("ATAN_LUT", const_cast<void*>(static_cast<const void*>(&(TOP.tt_um_cordic__DOT__u_cordic__DOT__ATAN_LUT))), true, VLVT_WDATA, VLVD_NODIR|VLVF_PUB_RW, 0, 1 ,271,0);
-    __Vscopep_tt_um_cordic__u_cordic->varInsert("G", const_cast<void*>(static_cast<const void*>(&(TOP.tt_um_cordic__DOT__u_cordic__DOT__G))), true, VLVT_UINT32, VLVD_NODIR|VLVF_PUB_RW|VLVF_DPI_CLAY|VLVF_SIGNED, 0, 1 ,31,0);
+    __Vscopep_tt_um_cordic__u_cordic->varInsert("ATAN_LUT", const_cast<void*>(static_cast<const void*>(&(TOP.tt_um_cordic__DOT__u_cordic__DOT__ATAN_LUT))), true, VLVT_WDATA, VLVD_NODIR|VLVF_PUB_RW, 0, 1 ,255,0);
     __Vscopep_tt_um_cordic__u_cordic->varInsert("IDLE", const_cast<void*>(static_cast<const void*>(&(TOP.tt_um_cordic__DOT__u_cordic__DOT__IDLE))), true, VLVT_UINT8, VLVD_NODIR|VLVF_PUB_RW, 0, 1 ,2,0);
     __Vscopep_tt_um_cordic__u_cordic->varInsert("INIT", const_cast<void*>(static_cast<const void*>(&(TOP.tt_um_cordic__DOT__u_cordic__DOT__INIT))), true, VLVT_UINT8, VLVD_NODIR|VLVF_PUB_RW, 0, 1 ,2,0);
     __Vscopep_tt_um_cordic__u_cordic->varInsert("ITER", const_cast<void*>(static_cast<const void*>(&(TOP.tt_um_cordic__DOT__u_cordic__DOT__ITER))), true, VLVT_UINT32, VLVD_NODIR|VLVF_PUB_RW|VLVF_DPI_CLAY|VLVF_SIGNED, 0, 1 ,31,0);
@@ -206,9 +205,8 @@ Vtop__Syms::Vtop__Syms(VerilatedContext* contextp, const char* namep, Vtop* mode
     __Vscopep_tt_um_cordic__u_cordic->varInsert("NORMALIZE", const_cast<void*>(static_cast<const void*>(&(TOP.tt_um_cordic__DOT__u_cordic__DOT__NORMALIZE))), true, VLVT_UINT8, VLVD_NODIR|VLVF_PUB_RW, 0, 1 ,2,0);
     __Vscopep_tt_um_cordic__u_cordic->varInsert("POSTSCALE", const_cast<void*>(static_cast<const void*>(&(TOP.tt_um_cordic__DOT__u_cordic__DOT__POSTSCALE))), true, VLVT_UINT8, VLVD_NODIR|VLVF_PUB_RW, 0, 1 ,2,0);
     __Vscopep_tt_um_cordic__u_cordic->varInsert("REVERT", const_cast<void*>(static_cast<const void*>(&(TOP.tt_um_cordic__DOT__u_cordic__DOT__REVERT))), true, VLVT_UINT8, VLVD_NODIR|VLVF_PUB_RW, 0, 1 ,2,0);
-    __Vscopep_tt_um_cordic__u_cordic->varInsert("SQRT_C_DIR", const_cast<void*>(static_cast<const void*>(&(TOP.tt_um_cordic__DOT__u_cordic__DOT__SQRT_C_DIR))), true, VLVT_UINT32, VLVD_NODIR|VLVF_PUB_RW, 0, 1 ,19,0);
-    __Vscopep_tt_um_cordic__u_cordic->varInsert("SQRT_C_POS", const_cast<void*>(static_cast<const void*>(&(TOP.tt_um_cordic__DOT__u_cordic__DOT__SQRT_C_POS))), true, VLVT_UINT32, VLVD_NODIR|VLVF_PUB_RW, 0, 1 ,19,0);
-    __Vscopep_tt_um_cordic__u_cordic->varInsert("W", const_cast<void*>(static_cast<const void*>(&(TOP.tt_um_cordic__DOT__u_cordic__DOT__W))), true, VLVT_UINT32, VLVD_NODIR|VLVF_PUB_RW|VLVF_DPI_CLAY|VLVF_SIGNED, 0, 1 ,31,0);
+    __Vscopep_tt_um_cordic__u_cordic->varInsert("SQRT_C_DIR", const_cast<void*>(static_cast<const void*>(&(TOP.tt_um_cordic__DOT__u_cordic__DOT__SQRT_C_DIR))), true, VLVT_UINT16, VLVD_NODIR|VLVF_PUB_RW, 0, 1 ,15,0);
+    __Vscopep_tt_um_cordic__u_cordic->varInsert("SQRT_C_POS", const_cast<void*>(static_cast<const void*>(&(TOP.tt_um_cordic__DOT__u_cordic__DOT__SQRT_C_POS))), true, VLVT_UINT16, VLVD_NODIR|VLVF_PUB_RW, 0, 1 ,15,0);
     __Vscopep_tt_um_cordic__u_cordic__unnamedblk1->varsInsertFromTable(Vtop___024root__VpiVarTable4, 1, &(TOP));
     __Vscopep_tt_um_cordic__u_cordic__unnamedblk2->varsInsertFromTable(Vtop___024root__VpiVarTable5, 1, &(TOP));
     __Vscopep_tt_um_cordic__u_cordic__unnamedblk3->varsInsertFromTable(Vtop___024root__VpiVarTable6, 1, &(TOP));

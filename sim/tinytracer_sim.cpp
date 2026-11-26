@@ -149,9 +149,7 @@ struct Fix {  // 16-bit saturating fixed point, held in int32
     if (sh != 14) { std::fprintf(stderr, "CORDIC div only returns Q2.14\n"); std::exit(1); }
     return rtl().div((int16_t)a, (int16_t)b);
   }
-  static S sqrtv(S a, int f) {  // the hardware never starts a negative sqrt, so it's kept out
-    return a < 0 ? 0 : rtl().sqrt((int16_t)a, f == 14 ? CordicRTL::DIR : CordicRTL::POS);
-  }
+  static S sqrtv(S a, int f) { return rtl().sqrt((int16_t)a, f == 14 ? CordicRTL::DIR : CordicRTL::POS); }
   static S mag(S a, S b) { return rtl().mag((int16_t)a, (int16_t)b); }
   static S cosv(S a) { return rtl().cos((int16_t)a); }
 #else

@@ -9,8 +9,6 @@ module cordic #(
     fu_if.server        fu
 );
 
-localparam int G = 4;
-localparam int W = 16 + G;
 localparam [255:0] ATAN_LUT = {
     16'h0001,
     16'h0001,
@@ -29,8 +27,8 @@ localparam [255:0] ATAN_LUT = {
     16'h1DAC,
     16'h3244
 };
-localparam [W-1:0] SQRT_C_DIR = W'(16'h1000) << G;
-localparam [W-1:0] SQRT_C_POS = W'(16'h0020) << G;
+localparam [15:0] SQRT_C_DIR = 16'h1000;
+localparam [15:0] SQRT_C_POS = 16'h0020;
 
 parameter   IDLE = 3'b000,
             INIT = 3'b001,
@@ -42,11 +40,11 @@ parameter   IDLE = 3'b000,
 reg [2:0] current_state, next_state;
 reg [4:0] j;
 reg [4:0] iteration;
-reg signed [W-1:0] x, y;
-reg signed [W-1:0] x_next, y_next;
+reg signed [15:0] x, y;
+reg signed [15:0] x_next, y_next;
 reg signed [15:0] z, z_next;
-reg signed [W-1:0] negative_x, negative_y;
-reg signed [W-1:0] x_shifted, y_shifted;
+reg signed [15:0] negative_x, negative_y;
+reg signed [15:0] x_shifted, y_shifted;
 reg x_subtract, y_subtract;
 reg z_subtract;
 reg [15:0] one_shifted;
@@ -58,20 +56,20 @@ reg div_shift, sqrt_shift;
 reg [3:0] sqrt_amt;
 reg shift_right_next, shift_right_q;
 reg tooBig;
-reg signed [W-1:0] ym, xp, normalized;
-reg [W-1:0] sh_in, sh_pre, sh_out;
-reg [W:0] sh_r;
+reg signed [15:0] ym, xp, normalized;
+reg [15:0] sh_in, sh_pre, sh_out;
+reg [16:0] sh_r;
 reg [4:0] sh_amt;
 reg sh_left;
-reg signed [W:0] postscale_x;
-reg signed [W+14:0] postscale_39x, postscale_product;
+reg signed [16:0] postscale_x;
+reg signed [30:0] postscale_39x, postscale_product;
 reg [15:0] postscale_result;
 reg angle_shift;
 reg angle_shift_q;
 reg [1:0] opcode;
 reg format;
 
-assign start = fu.req_valid && !(fu.req_opcode == 2'b01 && fu.req_op1[15] == 1'b1);
+assign start = fu.req_valid;
 
 always @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
@@ -159,8 +157,8 @@ always @(*) begin
     y_next = y;
     z_next = z;
     // Saturating negation: -(-2.0) has no two's-complement value, so it gives the largest positive.
-    negative_x = (x == {1'b1, {(W-1){1'b0}}}) ? {1'b0, {(W-1){1'b1}}} : -x;
-    negative_y = (y == {1'b1, {(W-1){1'b0}}}) ? {1'b0, {(W-1){1'b1}}} : -y;
+    negative_x = (x == {1'b1, {(15){1'b0}}}) ? {1'b0, {(15){1'b1}}} : -x;
+    negative_y = (y == {1'b1, {(15){1'b0}}}) ? {1'b0, {(15){1'b1}}} : -y;
     x_subtract = 1'b0;
     y_subtract = 1'b0;
     z_subtract = 1'b0;
@@ -179,19 +177,19 @@ always @(*) begin
 
     iteration = j;
 
-    xp = x[W-1] ? negative_x : x;
-    ym = y[W-1] ? negative_y : y;
+    xp = x[15] ? negative_x : x;
+    ym = y[15] ? negative_y : y;
     for (int i = 0; i < 15; i++) begin
-        if (xp[G+i])
+        if (xp[i])
             k = i;
-        if (ym[G+i])
+        if (ym[i])
             l = i;
     end
     shift_diff = l - k;
-    tooBig = format ? x[G+14] : |x[G+14:G+8];
+    tooBig = format ? x[14] : |x[14:8];
     shift_base = (format ? 4'd12 : 4'd6) | k[0];
     div_shift = (l >= k);
-    sqrt_shift = tooBig | ~(format ? (x[G+12] | x[G+13]) : (x[G+6] | x[G+7]));
+    sqrt_shift = tooBig | ~(format ? (x[12] | x[13]) : (x[6] | x[7]));
     sqrt_amt = tooBig ? k - shift_base : shift_base - k;
 
     sh_in = x;
@@ -210,7 +208,7 @@ always @(*) begin
         end
     end else if (current_state == REVERT) begin
         if (opcode == 2'b00) begin
-            sh_in = {z, {G{1'b0}}};
+            sh_in = z;
             sh_amt = {1'b0, shift_q};
             sh_left = 1'b1;
         end else begin
@@ -218,15 +216,15 @@ always @(*) begin
             sh_left = shift_right_q;
         end
     end
-    for (int i = 0; i < W; i++)
-        sh_pre[i] = sh_left ? sh_in[W-1-i] : sh_in[i];
-    sh_r = $signed({~sh_left & sh_in[W-1], sh_pre}) >>> sh_amt;
-    for (int i = 0; i < W; i++)
-        sh_out[i] = sh_left ? sh_r[W-1-i] : sh_r[i];
+    for (int i = 0; i < 16; i++)
+        sh_pre[i] = sh_left ? sh_in[15-i] : sh_in[i];
+    sh_r = $signed({~sh_left & sh_in[15], sh_pre}) >>> sh_amt;
+    for (int i = 0; i < 16; i++)
+        sh_out[i] = sh_left ? sh_r[15-i] : sh_r[i];
 
     one_shifted = (16'h4000 >>> iteration);
     if (current_state == LOOP)
-        z_subtract = (opcode == 2'b10) ? ~z[15] : y[W-1];
+        z_subtract = (opcode == 2'b10) ? ~z[15] : y[15];
     z_sum = z + z_subtract + (((current_state == LOOP) ? (opcode[1] ? ATAN_LUT[{iteration[3:0], 4'b0} +: 16] : one_shifted)
                                                        : (z[15] ? 16'hC910 : 16'h36F0)) ^ {16{z_subtract}});
 
@@ -236,20 +234,20 @@ always @(*) begin
         INIT:
         begin
             if (opcode == 2'b00) begin
-                x_next = {fu.req_op2, {G{1'b0}}};
-                y_next = {fu.req_op1, {G{1'b0}}};
+                x_next = fu.req_op2;
+                y_next = fu.req_op1;
                 z_next = '0;
             end else if (opcode == 2'b10) begin
-                x_next = {fu.req_op1, {G{1'b0}}};
+                x_next = fu.req_op1;
                 y_next = '0;
                 z_next = fu.req_op2;
             end else if (opcode == 2'b11) begin
-                x_next = {fu.req_op1, {G{1'b0}}};
-                y_next = {fu.req_op2, {G{1'b0}}};
+                x_next = fu.req_op1;
+                y_next = fu.req_op2;
                 z_next = '0;
             end else begin
-                x_next = {fu.req_op1, {G{1'b0}}};
-                y_next = {fu.req_op1, {G{1'b0}}};
+                x_next = fu.req_op1;
+                y_next = fu.req_op1;
                 z_next = '0;
             end
         end
@@ -259,7 +257,7 @@ always @(*) begin
             shift_right_next = 1'b0;
             if (opcode == 2'b00) begin
                 x_next = sh_out;
-                if (x[W-1]) begin
+                if (x[15]) begin
                     y_next = negative_y;
                 end
                 if (div_shift) begin
@@ -276,9 +274,11 @@ always @(*) begin
             end else if (opcode == 2'b11) begin
                 // Quarter the inputs: the CORDIC gain (1.647) would push x past 2.0
                 // for magnitudes above 1.214. POSTSCALE multiplies the result back by 4.
-                x_next = $unsigned(xp) >> 2;  // unsigned: |-2.0| = 0x80000 reads as +2.0
+                x_next = $unsigned(xp) >> 2;  // unsigned: |-2.0| = 0x8000 reads as +2.0
                 y_next = $unsigned(ym) >> 2;
             end else if (opcode == 2'b01) begin
+                // sqrt of a negative or zero input returns 0 (flag reuses the cos-only angle_shift)
+                angle_shift = x[15] | ~(|x);
                 if (sqrt_shift) begin
                     shift_next = sqrt_amt;
                     shift_right_next = tooBig;
@@ -292,10 +292,10 @@ always @(*) begin
         begin
             x_shifted = sh_out;
             y_shifted = ((opcode == 2'b01) ? ym : y) >>> iteration;
-            y_subtract = (opcode == 2'b10) ? z[15] : ~y[W-1];
-            x_subtract = (opcode == 2'b01) ? 1'b1 : (opcode[0] ? y[W-1] : ~z[15]);
-            x_next = (opcode == 2'b00)? x : (x + (y_shifted ^ {W{x_subtract}}) + x_subtract);
-            y_next = y + (x_shifted ^ {W{y_subtract}}) + y_subtract;
+            y_subtract = (opcode == 2'b10) ? z[15] : ~y[15];
+            x_subtract = (opcode == 2'b01) ? 1'b1 : (opcode[0] ? y[15] : ~z[15]);
+            x_next = (opcode == 2'b00)? x : (x + (y_shifted ^ {16{x_subtract}}) + x_subtract);
+            y_next = y + (x_shifted ^ {16{y_subtract}}) + y_subtract;
             z_next = z_sum;
         end
         REVERT:
@@ -304,7 +304,7 @@ always @(*) begin
                 if (|((z ^ {16{z[15]}}) & (16'hFFFF << (4'd15 - shift_q))))
                     z_next = z[15] ? 16'h8000 : 16'h7FFF;
                 else
-                    z_next = sh_out[W-1:G];
+                    z_next = sh_out[15:0];
             end else if (opcode == 2'b10) begin
                 x_next = angle_shift_q ? negative_x : x;
             end else if (opcode == 2'b01) begin
@@ -314,22 +314,24 @@ always @(*) begin
         POSTSCALE:
         begin
             if (opcode[0] | opcode[1]) begin
-                postscale_x = {opcode[1] & x[W-1], x};
+                postscale_x = {opcode[1] & x[15], x};
                 postscale_39x = (postscale_x <<< 5) + (postscale_x <<< 3) - postscale_x;
                 postscale_product = (opcode[1] ? (postscale_39x <<< 8) : (postscale_39x <<< 9))
                                   - (opcode[1] ? postscale_39x : (postscale_39x <<< 3))
                                   + (opcode[1] ? (postscale_x <<< 2) : (postscale_x <<< 7));
                 if (opcode == 2'b11) begin
                     // mag: result x 4 (inputs were quartered), never negative
-                    if ((|postscale_product[W+14:W+11]) | (&postscale_product[W+10:W-5]))
+                    if ((|postscale_product[30:27]) | (&postscale_product[26:11]))
                         postscale_result = 16'h7FFF;
                     else
-                        postscale_result = postscale_product[W+11:W-4] + postscale_product[W-5];
-                end else if ((~opcode[1] & (postscale_product[W+14] | postscale_product[W+13]))
-                    | (~postscale_product[W+13] & (&postscale_product[W+12:W-3])))
+                        postscale_result = postscale_product[27:12] + postscale_product[11];
+                end else if ((~opcode[1] & (postscale_product[30] | postscale_product[29]))
+                    | (~postscale_product[29] & (&postscale_product[28:13])))
                     postscale_result = 16'h7FFF;
                 else
-                    postscale_result = postscale_product[W+13:W-2] + postscale_product[W-3];
+                    postscale_result = postscale_product[29:14] + postscale_product[13];
+                if (opcode == 2'b01 && angle_shift_q)
+                    postscale_result = 16'b0;
                 fu.resp_result = postscale_result;
             end else begin
                 fu.resp_result = z;
