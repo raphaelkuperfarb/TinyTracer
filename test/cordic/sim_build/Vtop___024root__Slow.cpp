@@ -11,6 +11,8 @@ constexpr CData/*2:0*/ Vtop___024root::tt_um_cordic__DOT__u_cordic__DOT__NORMALI
 constexpr CData/*2:0*/ Vtop___024root::tt_um_cordic__DOT__u_cordic__DOT__LOOP;
 constexpr CData/*2:0*/ Vtop___024root::tt_um_cordic__DOT__u_cordic__DOT__REVERT;
 constexpr CData/*2:0*/ Vtop___024root::tt_um_cordic__DOT__u_cordic__DOT__POSTSCALE;
+constexpr SData/*15:0*/ Vtop___024root::tt_um_cordic__DOT__u_cordic__DOT__PI;
+constexpr SData/*15:0*/ Vtop___024root::tt_um_cordic__DOT__u_cordic__DOT__HALF_PI;
 constexpr IData/*31:0*/ Vtop___024root::tt_um_cordic__DOT__u_cordic__DOT__ITER;
 constexpr VlWide<8>/*255:0*/ Vtop___024root::tt_um_cordic__DOT__u_cordic__DOT__ATAN_LUT;
 
