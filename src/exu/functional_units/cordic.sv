@@ -9,27 +9,34 @@ module cordic #(
     fu_if.server        fu
 );
 
-localparam int G = 8;
+localparam int G = 4;
 localparam int W = 16 + G;
 
 localparam [16*W-1:0] ATAN_LUT = {
-    24'h000080,
-    24'h000100,
-    24'h000200,
-    24'h000400,
-    24'h000800,
-    24'h001000,
-    24'h002000,
-    24'h004000,
-    24'h007FFF,
-    24'h00FFFB,
-    24'h01FFD5,
-    24'h03FEAB,
-    24'h07F56F,
-    24'h0FADBB,
-    24'h1DAC67,
-    24'h3243F7
+    20'h00008,
+    20'h00010,
+    20'h00020,
+    20'h00040,
+    20'h00080,
+    20'h00100,
+    20'h00200,
+    20'h00400,
+    20'h00800,
+    20'h01000,
+    20'h01FFD,
+    20'h03FEB,
+    20'h07F57,
+    20'h0FADC,
+    20'h1DAC6,
+    20'h3243F
 };
+localparam [W-1:0] PI_POS = 20'hC90FE;
+localparam [W-1:0] PI_NEG = 20'h36F02;
+localparam [W-1:0] ONE = W'(1) << (W - 2);
+localparam [W-1:0] SQRT_C_DIR = W'(16'h1000) << G;
+localparam [W-1:0] SQRT_C_POS = W'(16'h0020) << G;
+localparam signed [W-1:0] COS_HI = {16'h6F92, {G{1'b0}}};
+localparam signed [W-1:0] COS_LO = {16'h906E, {G{1'b0}}};
 
 parameter   IDLE = 3'b000,
             INIT = 3'b001,
@@ -221,11 +228,11 @@ always @(*) begin
     for (int i = 0; i < W; i++)
         sh_out[i] = sh_left ? sh_r[W-1-i] : sh_r[i];
 
-    one_shifted = (24'h400000 >>> iteration);
+    one_shifted = (ONE >>> iteration);
     if (current_state == LOOP)
         z_subtract = (opcode == 2'b10) ? ~z[W-1] : y[W-1];
     z_sum = z + z_subtract + (((current_state == LOOP) ? (opcode[1] ? ATAN_LUT[iteration[3:0]*W +: W] : one_shifted)
-                                                       : (z[W-1] ? 24'hC90FDB : 24'h36F025)) ^ {W{z_subtract}});
+                                                       : (z[W-1] ? PI_POS : PI_NEG)) ^ {W{z_subtract}});
 
     case(current_state)
         IDLE:
@@ -267,7 +274,7 @@ always @(*) begin
                     end
                 end
             end else if (opcode == 2'b10) begin
-                angle_shift = (z > 24'sh6F9200 || z < 24'sh906E00);
+                angle_shift = (z > COS_HI || z < COS_LO);
                 if (angle_shift)
                     z_next = z_sum;
             end else if (opcode == 2'b11) begin
@@ -279,8 +286,8 @@ always @(*) begin
                     shift_right_next = tooBig;
                 end
                 normalized = sh_out;
-                x_next = normalized + (format ? 24'h100000 : 24'h002000);
-                y_next = normalized - (format ? 24'h100000 : 24'h002000);
+                x_next = normalized + (format ? SQRT_C_DIR : SQRT_C_POS);
+                y_next = normalized - (format ? SQRT_C_DIR : SQRT_C_POS);
             end
         end
         LOOP:
@@ -296,7 +303,7 @@ always @(*) begin
         REVERT:
         begin
             if (opcode ==  2'b00) begin
-                if (|((z ^ {W{z[W-1]}}) & ({W{1'b1}} << (5'd23 - shift_q))))
+                if (|((z ^ {W{z[W-1]}}) & ({W{1'b1}} << (5'(W - 1) - shift_q))))
                     z_next = z[W-1] ? {1'b1, {(W-1){1'b0}}} : {1'b0, {(W-1){1'b1}}};
                 else
                     z_next = sh_out;
