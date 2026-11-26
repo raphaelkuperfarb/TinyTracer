@@ -41,6 +41,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtop__Syms final : public VerilatedSyms {
     VerilatedScope* __Vscopep_tt_um_cordic;
     VerilatedScope* __Vscopep_tt_um_cordic__fu;
     VerilatedScope* __Vscopep_tt_um_cordic__u_cordic;
+    VerilatedScope* __Vscopep_tt_um_cordic__u_cordic__unnamedblk1;
+    VerilatedScope* __Vscopep_tt_um_cordic__u_cordic__unnamedblk2;
+    VerilatedScope* __Vscopep_tt_um_cordic__u_cordic__unnamedblk3;
 
     // SCOPE HIERARCHY
     VerilatedHierarchy __Vhier;

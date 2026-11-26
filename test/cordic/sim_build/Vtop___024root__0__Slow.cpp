@@ -13,6 +13,8 @@ VL_ATTR_COLD void Vtop___024root___eval_static(Vtop___024root* vlSelf) {
         = vlSelfRef.tt_um_cordic__DOT__clk;
     vlSelfRef.__Vtrigprevexpr___TOP__tt_um_cordic__DOT__u_cordic__DOT__clk__0 
         = vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__clk;
+    vlSelfRef.__Vtrigprevexpr___TOP__tt_um_cordic__DOT__u_cordic__DOT__rst_n__0 
+        = vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__rst_n;
 }
 
 VL_ATTR_COLD void Vtop___024root___eval_initial(Vtop___024root* vlSelf) {
@@ -25,9 +27,7 @@ VL_ATTR_COLD void Vtop___024root___eval_initial(Vtop___024root* vlSelf) {
 VL_ATTR_COLD void Vtop___024root___dump_triggers__stl(const VlUnpacked<QData/*63:0*/, 1> &triggers, const std::string &tag);
 #endif  // VL_DEBUG
 VL_ATTR_COLD bool Vtop___024root___trigger_anySet__stl(const VlUnpacked<QData/*63:0*/, 1> &in);
-void Vtop_fu_if___ico_sequent__TOP__tt_um_cordic__DOT__fu__0(Vtop_fu_if* vlSelf);
-void Vtop___024root___ico_sequent__TOP__1(Vtop___024root* vlSelf);
-void Vtop_fu_if___ico_sequent__TOP__tt_um_cordic__DOT__fu__1(Vtop_fu_if* vlSelf);
+VL_ATTR_COLD void Vtop___024root___eval_body__stl(Vtop___024root* vlSelf);
 
 VL_ATTR_COLD bool Vtop___024root___eval_stl(Vtop___024root* vlSelf, CData/*0:0*/ firstIteration) {
     VL_DEBUG_IF(VL_DBG_MSGF("+    Vtop___024root___eval_stl\n"); );
@@ -46,43 +46,7 @@ VL_ATTR_COLD bool Vtop___024root___eval_stl(Vtop___024root* vlSelf, CData/*0:0*/
 #endif
     __VstlExecute = Vtop___024root___trigger_anySet__stl(vlSelfRef.__VstlTriggered);
     if (__VstlExecute) {
-        {
-            // Inlined CFunc: _eval_body__stl
-            if ((1ULL & vlSelfRef.__VstlTriggered[0U])) {
-                {
-                    // Inlined CFunc: _stl_sequent__TOP__0
-                    vlSelfRef.tt_um_cordic__DOT__uio_in 
-                        = vlSelfRef.uio_in;
-                    vlSelfRef.tt_um_cordic__DOT__uio_oe 
-                        = (0x000000ffU & (- (IData)((IData)(vlSelfRef.tt_um_cordic__DOT__result_valid))));
-                    vlSelfRef.tt_um_cordic__DOT__uo_out 
-                        = (0x000000ffU & (IData)(vlSelfRef.tt_um_cordic__DOT__result_q));
-                    vlSelfRef.tt_um_cordic__DOT__uio_out 
-                        = (0x000000ffU & ((IData)(vlSelfRef.tt_um_cordic__DOT__result_q) 
-                                          >> 8U));
-                    vlSelfRef.tt_um_cordic__DOT__ena 
-                        = vlSelfRef.ena;
-                    vlSelfRef.tt_um_cordic__DOT__clk 
-                        = vlSelfRef.clk;
-                    vlSelfRef.tt_um_cordic__DOT__rst_n 
-                        = vlSelfRef.rst_n;
-                    vlSelfRef.tt_um_cordic__DOT__ui_in 
-                        = vlSelfRef.ui_in;
-                    vlSelfRef.uio_oe = vlSelfRef.tt_um_cordic__DOT__uio_oe;
-                    vlSelfRef.uo_out = vlSelfRef.tt_um_cordic__DOT__uo_out;
-                    vlSelfRef.uio_out = vlSelfRef.tt_um_cordic__DOT__uio_out;
-                    vlSelfRef.tt_um_cordic__DOT___unused 
-                        = vlSelfRef.tt_um_cordic__DOT__ena;
-                    vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__clk 
-                        = vlSelfRef.tt_um_cordic__DOT__clk;
-                    vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__rst_n 
-                        = vlSelfRef.tt_um_cordic__DOT__rst_n;
-                }
-                Vtop_fu_if___ico_sequent__TOP__tt_um_cordic__DOT__fu__0((&vlSymsp->TOP__tt_um_cordic__DOT__fu));
-                Vtop___024root___ico_sequent__TOP__1(vlSelf);
-                Vtop_fu_if___ico_sequent__TOP__tt_um_cordic__DOT__fu__1((&vlSymsp->TOP__tt_um_cordic__DOT__fu));
-            }
-        }
+        Vtop___024root___eval_body__stl(vlSelf);
     }
     return (__VstlExecute);
 }
@@ -181,6 +145,128 @@ VL_ATTR_COLD bool Vtop___024root___trigger_anySet__stl(const VlUnpacked<QData/*6
     return (0U);
 }
 
+void Vtop_fu_if___ico_sequent__TOP__tt_um_cordic__DOT__fu__0(Vtop_fu_if* vlSelf);
+void Vtop___024root___ico_sequent__TOP__1(Vtop___024root* vlSelf);
+
+VL_ATTR_COLD void Vtop___024root___eval_body__stl(Vtop___024root* vlSelf) {
+    VL_DEBUG_IF(VL_DBG_MSGF("+    Vtop___024root___eval_body__stl\n"); );
+    Vtop__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
+    auto& vlSelfRef = std::ref(*vlSelf).get();
+    // Body
+    if ((1ULL & vlSelfRef.__VstlTriggered[0U])) {
+        {
+            // Inlined CFunc: _stl_sequent__TOP__0
+            vlSymsp->TOP__tt_um_cordic__DOT__fu.resp_done = 0U;
+            vlSymsp->TOP__tt_um_cordic__DOT__fu.req_ready = 0U;
+            if ((0U == (IData)(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__current_state))) {
+                vlSymsp->TOP__tt_um_cordic__DOT__fu.req_ready = 1U;
+            }
+            vlSelfRef.tt_um_cordic__DOT__uio_in = vlSelfRef.uio_in;
+            vlSelfRef.tt_um_cordic__DOT__uio_oe = (0x000000ffU 
+                                                   & (- (IData)((IData)(vlSelfRef.tt_um_cordic__DOT__result_valid))));
+            vlSelfRef.tt_um_cordic__DOT__uo_out = (0x000000ffU 
+                                                   & (IData)(vlSelfRef.tt_um_cordic__DOT__result_q));
+            vlSelfRef.tt_um_cordic__DOT__uio_out = 
+                (0x000000ffU & ((IData)(vlSelfRef.tt_um_cordic__DOT__result_q) 
+                                >> 8U));
+            vlSelfRef.tt_um_cordic__DOT__ena = vlSelfRef.ena;
+            vlSelfRef.tt_um_cordic__DOT__clk = vlSelfRef.clk;
+            vlSelfRef.tt_um_cordic__DOT__rst_n = vlSelfRef.rst_n;
+            vlSymsp->TOP__tt_um_cordic__DOT__fu.resp_result = 0U;
+            vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__postscale_x = 0U;
+            vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__postscale_39x = 0U;
+            vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__postscale_product = 0U;
+            vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__postscale_result = 0U;
+            if ((0U != (IData)(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__current_state))) {
+                if ((1U != (IData)(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__current_state))) {
+                    if ((3U != (IData)(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__current_state))) {
+                        if ((2U != (IData)(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__current_state))) {
+                            if ((6U != (IData)(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__current_state))) {
+                                if ((4U == (IData)(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__current_state))) {
+                                    vlSymsp->TOP__tt_um_cordic__DOT__fu.resp_done = 1U;
+                                    if ((IData)((0U 
+                                                 != (IData)(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__opcode)))) {
+                                        vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__postscale_x 
+                                            = (((IData)(
+                                                        (((IData)(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__opcode) 
+                                                          >> 1U) 
+                                                         & ((IData)(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__x) 
+                                                            >> 0x0000000fU))) 
+                                                << 0x00000010U) 
+                                               | (IData)(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__x));
+                                        vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__postscale_39x 
+                                            = (0x7fffffffU 
+                                               & (((VL_EXTENDS_II(31,17, vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__postscale_x) 
+                                                    << 5U) 
+                                                   + 
+                                                   (VL_EXTENDS_II(31,17, vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__postscale_x) 
+                                                    << 3U)) 
+                                                  - 
+                                                  VL_EXTENDS_II(31,17, vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__postscale_x)));
+                                        vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__postscale_product 
+                                            = (0x7fffffffU 
+                                               & ((((2U 
+                                                     & (IData)(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__opcode))
+                                                     ? 
+                                                    (vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__postscale_39x 
+                                                     << 8U)
+                                                     : 
+                                                    (vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__postscale_39x 
+                                                     << 9U)) 
+                                                   - 
+                                                   ((2U 
+                                                     & (IData)(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__opcode))
+                                                     ? vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__postscale_39x
+                                                     : 
+                                                    (vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__postscale_39x 
+                                                     << 3U))) 
+                                                  + 
+                                                  ((2U 
+                                                    & (IData)(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__opcode))
+                                                    ? 0U
+                                                    : 
+                                                   (VL_EXTENDS_II(31,17, vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__postscale_x) 
+                                                    << 7U))));
+                                        vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__postscale_result 
+                                            = ((IData)(
+                                                       ((~ 
+                                                         ((IData)(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__opcode) 
+                                                          >> 1U)) 
+                                                        & (0U 
+                                                           != 
+                                                           (0x60000000U 
+                                                            & vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__postscale_product))))
+                                                ? 0x00007fffU
+                                                : (0x0000ffffU 
+                                                   & (vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__postscale_product 
+                                                      >> 0x0eU)));
+                                        vlSymsp->TOP__tt_um_cordic__DOT__fu.resp_result 
+                                            = vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__postscale_result;
+                                    } else {
+                                        vlSymsp->TOP__tt_um_cordic__DOT__fu.resp_result 
+                                            = vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__z;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            vlSelfRef.tt_um_cordic__DOT__ui_in = vlSelfRef.ui_in;
+            vlSelfRef.uio_oe = vlSelfRef.tt_um_cordic__DOT__uio_oe;
+            vlSelfRef.uo_out = vlSelfRef.tt_um_cordic__DOT__uo_out;
+            vlSelfRef.uio_out = vlSelfRef.tt_um_cordic__DOT__uio_out;
+            vlSelfRef.tt_um_cordic__DOT___unused = vlSelfRef.tt_um_cordic__DOT__ena;
+            vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__clk 
+                = vlSelfRef.tt_um_cordic__DOT__clk;
+            vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__rst_n 
+                = vlSelfRef.tt_um_cordic__DOT__rst_n;
+        }
+        Vtop_fu_if___ico_sequent__TOP__tt_um_cordic__DOT__fu__0((&vlSymsp->TOP__tt_um_cordic__DOT__fu));
+        Vtop___024root___ico_sequent__TOP__1(vlSelf);
+    }
+}
+
 bool Vtop___024root___trigger_anySet__ico(const VlUnpacked<QData/*63:0*/, 1> &in);
 
 #ifdef VL_DEBUG
@@ -210,6 +296,9 @@ VL_ATTR_COLD void Vtop___024root___dump_triggers__act(const VlUnpacked<QData/*63
     }
     if ((1U & (IData)((triggers[0U] >> 1U)))) {
         VL_DBG_MSGS("         '" + tag + "' region trigger index 1 is active: @(posedge tt_um_cordic.u_cordic.clk)\n");
+    }
+    if ((1U & (IData)((triggers[0U] >> 2U)))) {
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 2 is active: @(negedge tt_um_cordic.u_cordic.rst_n)\n");
     }
 }
 #endif  // VL_DEBUG
@@ -246,18 +335,16 @@ VL_ATTR_COLD void Vtop___024root___ctor_var_reset(Vtop___024root* vlSelf) {
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__rst_n = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 1258009166149636775ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__current_state = VL_SCOPED_RAND_RESET_I(3, __VscopeHash, 17708041275941484148ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__next_state = VL_SCOPED_RAND_RESET_I(3, __VscopeHash, 10543459298800691203ull);
-    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__start = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 16246185796468183869ull);
-    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__opcode = VL_SCOPED_RAND_RESET_I(2, __VscopeHash, 8125033404194173609ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__j = VL_SCOPED_RAND_RESET_I(5, __VscopeHash, 1151553726931524657ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__iteration = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 6319799538065580527ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__x = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 7933591865833817168ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__y = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 3601552095599930755ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__z = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 2954860601910890148ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__x_next = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 1950631406285961407ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__y_next = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 5027848173128669451ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__z_next = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 9989597036133135168ull);
-    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__repeated = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6886207335721660554ull);
-    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__iteration = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 6319799538065580527ull);
-    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__ym = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 16122052536951590330ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__negative_x = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 7899718441501282332ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__negative_y = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 8089766748036040109ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__x_shifted = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 5254532176598006786ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__y_shifted = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 15401178111684781802ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__x_subtract = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 17291746699958315037ull);
@@ -265,24 +352,37 @@ VL_ATTR_COLD void Vtop___024root___ctor_var_reset(Vtop___024root* vlSelf) {
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__z_subtract = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 18016021235118055278ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__one_shifted = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 7557764306946152525ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__z_sum = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 983603431105325715ull);
-    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__k = VL_SCOPED_RAND_RESET_I(6, __VscopeHash, 16482008820845747630ull);
-    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__k_next = VL_SCOPED_RAND_RESET_I(6, __VscopeHash, 5107811347731220445ull);
-    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__flip = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6590412586239483791ull);
-    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__flip_next = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 1093938998219282418ull);
-    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__scale_input = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 18245903462395818469ull);
-    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__scale_result = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 5247579588901831741ull);
-    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__div_x = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 2938007318640646375ull);
-    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__div_y = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 17160534124314169659ull);
-    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__div_px = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 11517287849175542086ull);
-    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__div_py = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 14347402222195091005ull);
-    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__div_k = VL_SCOPED_RAND_RESET_I(5, __VscopeHash, 3853393688231790734ull);
-    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__cos_hi = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 16789905782484962852ull);
-    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__cos_lo = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 14581103558494895605ull);
-    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__sq_p = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 1593385439874310360ull);
-    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__sq_f = VL_SCOPED_RAND_RESET_I(6, __VscopeHash, 7529163671038774716ull);
-    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__sq_k = VL_SCOPED_RAND_RESET_I(6, __VscopeHash, 17694451849636404752ull);
-    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__sq_s = VL_SCOPED_RAND_RESET_I(6, __VscopeHash, 11483483787615441193ull);
-    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__sq_w = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 13878542994642173202ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__repeated = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6886207335721660554ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__start = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 16246185796468183869ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__k = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 16482008820845747630ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__l = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 12479474956403288427ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__shift_diff = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 6899570991918790345ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__shift_next = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 10233822421526907053ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__shift_q = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 59510315533695709ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__shift_base = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 2093366224626832473ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__shift_right_next = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6017681376053944049ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__shift_right_q = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 17737484830892243271ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__tooBig = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6509448985774599561ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__ym = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 16122052536951590330ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__xp = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 11050522268129064551ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__normalized = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 6514038028619737159ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__sh_in = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 3738100775234231265ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__sh_pre = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 13203923719300075996ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__sh_out = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 3455313826234917300ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__sh_r = VL_SCOPED_RAND_RESET_I(17, __VscopeHash, 15181075565405908075ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__sh_amt = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 12095905527515921967ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__sh_left = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 7175187429958256203ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__postscale_x = VL_SCOPED_RAND_RESET_I(17, __VscopeHash, 6640142807706925094ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__postscale_39x = VL_SCOPED_RAND_RESET_I(31, __VscopeHash, 9895657356715043019ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__postscale_product = VL_SCOPED_RAND_RESET_I(31, __VscopeHash, 11194689768884128369ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__postscale_result = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 16291967078371936877ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__angle_shift = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 4252305682107688482ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__angle_shift_q = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 12899829729554040031ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__opcode = VL_SCOPED_RAND_RESET_I(2, __VscopeHash, 8125033404194173609ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__format = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 655247897360982197ull);
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__unnamedblk1__DOT__i = 0;
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__unnamedblk2__DOT__i = 0;
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__unnamedblk3__DOT__i = 0;
     for (int __Vi0 = 0; __Vi0 < 1; ++__Vi0) {
         vlSelf->__VstlTriggered[__Vi0] = 0;
     }
@@ -294,6 +394,7 @@ VL_ATTR_COLD void Vtop___024root___ctor_var_reset(Vtop___024root* vlSelf) {
     }
     vlSelf->__Vtrigprevexpr___TOP__tt_um_cordic__DOT__clk__0 = 0;
     vlSelf->__Vtrigprevexpr___TOP__tt_um_cordic__DOT__u_cordic__DOT__clk__0 = 0;
+    vlSelf->__Vtrigprevexpr___TOP__tt_um_cordic__DOT__u_cordic__DOT__rst_n__0 = 0;
     for (int __Vi0 = 0; __Vi0 < 1; ++__Vi0) {
         vlSelf->__VnbaTriggered[__Vi0] = 0;
     }

@@ -6,29 +6,37 @@ module cordic #(
     input  logic        clk,
     input  logic        rst_n,
 
-    // FU <-> CORDIC Interface
     fu_if.server        fu
 );
 
-localparam [255:0] ATAN_LUT = {
-    16'h0001,
-    16'h0001,
-    16'h0002,
-    16'h0004,
-    16'h0008,
-    16'h0010,
-    16'h0020,
-    16'h0040,
-    16'h0080,
-    16'h0100,
-    16'h0200,
-    16'h03FF,
-    16'h07F5,
-    16'h0FAE,
-    16'h1DAC,
-    16'h3244
-};
+localparam int G = 4;
+localparam int W = 16 + G;
 
+localparam [16*W-1:0] ATAN_LUT = {
+    20'h00008,
+    20'h00010,
+    20'h00020,
+    20'h00040,
+    20'h00080,
+    20'h00100,
+    20'h00200,
+    20'h00400,
+    20'h00800,
+    20'h01000,
+    20'h01FFD,
+    20'h03FEB,
+    20'h07F57,
+    20'h0FADC,
+    20'h1DAC6,
+    20'h3243F
+};
+localparam [W-1:0] PI_POS = 20'hC90FE;
+localparam [W-1:0] PI_NEG = 20'h36F02;
+localparam [W-1:0] ONE = W'(1) << (W - 2);
+localparam [W-1:0] SQRT_C_DIR = W'(16'h1000) << G;
+localparam [W-1:0] SQRT_C_POS = W'(16'h0020) << G;
+localparam signed [W-1:0] COS_HI = {16'h6F92, {G{1'b0}}};
+localparam signed [W-1:0] COS_LO = {16'h906E, {G{1'b0}}};
 
 parameter   IDLE = 3'b000,
             INIT = 3'b001,
@@ -37,67 +45,50 @@ parameter   IDLE = 3'b000,
             REVERT = 3'b110,
             POSTSCALE = 3'b100;
 
-
 reg [2:0] current_state, next_state;
-wire start = fu.req_valid && !(fu.req_opcode[1:0] == 2'b01 && fu.req_op1[15]); // no sqrt of a negative
-reg [1:0] opcode;                  // opcode latched on start, held for the whole op
-reg [4:0] j;                       // LOOP iteration counter
-reg signed [15:0] x, y, z;
-reg signed [15:0] x_next, y_next, z_next;
+reg [4:0] j;
+reg [4:0] iteration;
+reg signed [W-1:0] x, y, z;
+reg signed [W-1:0] x_next, y_next, z_next;
+reg signed [W-1:0] negative_x, negative_y;
+reg signed [W-1:0] x_shifted, y_shifted;
+reg x_subtract, y_subtract;
+reg z_subtract;
+reg [W-1:0] one_shifted;
+reg [W-1:0] z_sum;
 reg repeated;
-// LOOP-only signals (from cordic-raph-tests, not shared with other states)
-reg [3:0] iteration;
-reg signed [15:0] ym;
-reg signed [15:0] x_shifted, y_shifted;
-reg x_subtract, y_subtract, z_subtract;
-reg [15:0] one_shifted;
-reg [15:0] z_sum;
-reg signed [5:0] k, k_next;        // normalization shift, held for REVERT
-reg flip, flip_next;               // cosine angle folded by +-pi, held for REVERT
-reg signed [31:0] scale_input;     // signed copy of x
-reg signed [31:0] scale_result;    // wider scaling result
-assign fu.req_ready   = (current_state == IDLE);
-assign fu.resp_done   = (current_state == POSTSCALE);
-assign fu.resp_result = (opcode == tinytracer_pkg::CORDIC_DIV) ? z : x_next;
+wire start;
+reg [3:0] k, l, shift_diff, shift_next, shift_q, shift_base;
+reg div_shift, sqrt_shift;
+reg [3:0] sqrt_amt;
+reg shift_right_next, shift_right_q;
+reg tooBig;
+reg signed [W-1:0] ym, xp, normalized;
+reg [W-1:0] sh_in, sh_pre, sh_out;
+reg [W:0] sh_r;
+reg [4:0] sh_amt;
+reg sh_left;
+reg signed [W:0] postscale_x;
+reg signed [W+14:0] postscale_39x, postscale_product;
+reg [15:0] postscale_result;
+reg angle_shift;
+reg angle_shift_q;
+reg [1:0] opcode;
+reg format;
 
-// ---------------------------------------------------------------------------
-// NORMALIZE
-// ---------------------------------------------------------------------------
-// Leading-one detect: index of the highest set bit (0 when v == 0)
-function automatic [3:0] msb_index(input [15:0] v);
-    integer i;
-    begin
-        msb_index = 4'd0;
-        for (i = 0; i < 16; i = i + 1)
-            if (v[i]) msb_index = i[3:0];
-    end
-endfunction
+assign start = fu.req_valid && !(fu.req_opcode == 2'b01 && fu.req_op1[15] == 1'b1);
 
-wire [15:0] div_x  = fu.req_op2[15] ? -fu.req_op2 : fu.req_op2;
-wire [15:0] div_y  = fu.req_op2[15] ? -fu.req_op1 : fu.req_op1;
-wire [3:0]  div_px = msb_index(div_x);
-wire [3:0]  div_py = msb_index(div_y[15] ? -div_y : div_y);
-wire [4:0]  div_k  = (div_py >= div_px) ? (div_py - div_px + 5'd1) : 5'd0;
-
-// Cosine: fold the angle into [-pi/2, pi/2] with +-pi, cos(B -+ pi) = -cos(B).
-// pi doesn't fit signed Q2.14, but the 16-bit sum wraps to the right value.
-localparam [15:0] PI      = 16'd51472;
-localparam [15:0] HALF_PI = 16'd25736; 
-wire cos_hi = $signed(fu.req_op2) >  $signed(HALF_PI);
-wire cos_lo = $signed(fu.req_op2) < -$signed(HALF_PI);
-
-// Square root: w' = w * 2^(-2k) in [0.5, 2), k = ceil((p - F) / 2)
-wire [3:0]        sq_p = msb_index(fu.req_op1);
-wire signed [5:0] sq_f = (fu.req_fmt == tinytracer_pkg::FMT_DIR) ? 6'sd14 : 6'sd7;
-wire signed [5:0] sq_k = ($signed({2'b00, sq_p}) - sq_f + 6'sd1) >>> 1;
-wire signed [5:0] sq_s = 6'sd14 - sq_f - (sq_k <<< 1);
-wire [15:0]       sq_w = (sq_s >= 0) ? (fu.req_op1 << sq_s) : (fu.req_op1 >> -sq_s);
-
-
-always @(posedge clk) begin
+always @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
         current_state <= IDLE;
+        x <= '0;
+        y <= '0;
+        z <= '0;
+        shift_q <= 4'b0;
+        shift_right_q <= 1'b0;
+        angle_shift_q <= 1'b0;
         opcode <= 2'b0;
+        format <= 1'b0;
         repeated <= 1'b0;
         j <= 5'b0;
     end else begin
@@ -106,16 +97,20 @@ always @(posedge clk) begin
         x <= x_next;
         y <= y_next;
         z <= z_next;
-        k <= k_next;
-        flip <= flip_next;
+        shift_q <= shift_next;
+        shift_right_q <= shift_right_next;
+
+        if (current_state == NORMALIZE)
+            angle_shift_q <= angle_shift;
 
         if (current_state == IDLE && start) begin
             opcode <= fu.req_opcode[1:0];
+            format <= fu.req_fmt;
             repeated <= 1'b0;
-            j <= {4'b0, fu.req_opcode[1:0] == 2'b01}; // sqrt starts at i = 1, the rest at i = 0
+            j <= {4'b0, fu.req_opcode[1:0] == 2'b01};
         end else if (current_state == LOOP) begin
             if ((~j[1] & j[2] & ~(j[3]^j[0]))
-                && opcode == 2'b01 && !repeated)  begin// 4 or 13
+                && opcode == 2'b01 && !repeated)  begin
                 j <= j;
                 repeated <= 1'b1;
             end else begin
@@ -127,11 +122,19 @@ always @(posedge clk) begin
 end
 
 always @(*) begin
-    next_state = current_state;
+    next_state = IDLE;
     case(current_state)
-        IDLE: if (start) next_state = INIT;
-        INIT: next_state = NORMALIZE;
-        NORMALIZE: next_state = LOOP;
+        IDLE:
+        begin
+            if (start)
+                next_state = INIT;
+            else
+                next_state = IDLE;
+        end
+        INIT:
+            next_state = NORMALIZE;
+        NORMALIZE:
+            next_state = LOOP;
         LOOP:
         begin
             if (opcode == 2'b01) begin
@@ -146,131 +149,196 @@ always @(*) begin
                     next_state = LOOP;
             end
         end
-        REVERT: next_state = POSTSCALE;
-        POSTSCALE: next_state = IDLE;
-        default: next_state = IDLE;
+        REVERT:
+            next_state = POSTSCALE;
+        POSTSCALE:
+            next_state = IDLE;
     endcase
-end    
+end
 
 always @(*) begin
+    fu.req_ready = 1'b0;
+    fu.resp_done = 1'b0;
+    fu.resp_result = 16'b0;
     x_next = x;
     y_next = y;
     z_next = z;
-    k_next = k;
-    flip_next = flip;
-    iteration = 4'b0;
-    ym = 16'b0;
-    x_shifted = 16'b0;
-    y_shifted = 16'b0;
+    negative_x = -x;
+    negative_y = -y;
     x_subtract = 1'b0;
     y_subtract = 1'b0;
     z_subtract = 1'b0;
-    one_shifted = 16'b0;
-    z_sum = 16'b0;
-    scale_input = {{16{x[15]}}, x}; // preserve sign
-    scale_result = scale_input;     // default: no scaling
+    shift_next = shift_q;
+    shift_right_next = shift_right_q;
+    k = 4'b0;
+    l = 4'b0;
+    angle_shift = 1'b0;
+    normalized = x;
+    x_shifted = '0;
+    y_shifted = '0;
+    postscale_x = '0;
+    postscale_39x = '0;
+    postscale_product = '0;
+    postscale_result = 16'b0;
+
+    iteration = j;
+
+    xp = x[W-1] ? negative_x : x;
+    ym = y[W-1] ? negative_y : y;
+    for (int i = 0; i < 15; i++) begin
+        if (xp[G+i])
+            k = i;
+        if (ym[G+i])
+            l = i;
+    end
+    shift_diff = l - k;
+    tooBig = format ? x[G+14] : |x[G+14:G+8];
+    shift_base = (format ? 4'd12 : 4'd6) | k[0];
+    div_shift = (l >= k);
+    sqrt_shift = tooBig | ~(format ? (x[G+12] | x[G+13]) : (x[G+6] | x[G+7]));
+    sqrt_amt = tooBig ? k - shift_base : shift_base - k;
+
+    sh_in = x;
+    sh_amt = iteration;
+    sh_left = 1'b0;
+    if (current_state == NORMALIZE) begin
+        if (opcode == 2'b00) begin
+            sh_in = xp;
+            sh_amt = 5'd0;
+            sh_left = 1'b1;
+            if (div_shift)
+                sh_amt = {1'b0, (l == 4'd14) ? shift_diff : shift_diff + 1'b1};
+        end else begin
+            sh_amt = sqrt_shift ? {1'b0, sqrt_amt} : 5'd0;
+            sh_left = ~tooBig;
+        end
+    end else if (current_state == REVERT) begin
+        if (opcode == 2'b00) begin
+            sh_in = z;
+            sh_amt = {1'b0, shift_q};
+            sh_left = 1'b1;
+        end else begin
+            sh_amt = {2'b0, shift_q[3:1]};
+            sh_left = shift_right_q;
+        end
+    end
+    for (int i = 0; i < W; i++)
+        sh_pre[i] = sh_left ? sh_in[W-1-i] : sh_in[i];
+    sh_r = $signed({~sh_left & sh_in[W-1], sh_pre}) >>> sh_amt;
+    for (int i = 0; i < W; i++)
+        sh_out[i] = sh_left ? sh_r[W-1-i] : sh_r[i];
+
+    one_shifted = (ONE >>> iteration);
+    if (current_state == LOOP)
+        z_subtract = (opcode == 2'b10) ? ~z[W-1] : y[W-1];
+    z_sum = z + z_subtract + (((current_state == LOOP) ? (opcode[1] ? ATAN_LUT[iteration[3:0]*W +: W] : one_shifted)
+                                                       : (z[W-1] ? PI_POS : PI_NEG)) ^ {W{z_subtract}});
+
     case(current_state)
-        IDLE: begin
-            
+        IDLE:
+            fu.req_ready = 1'b1;
+        INIT:
+        begin
+            if (opcode == 2'b00) begin
+                x_next = {fu.req_op2, {G{1'b0}}};
+                y_next = {fu.req_op1, {G{1'b0}}};
+                z_next = '0;
+            end else if (opcode == 2'b10) begin
+                x_next = {fu.req_op1, {G{1'b0}}};
+                y_next = '0;
+                z_next = {fu.req_op2, {G{1'b0}}};
+            end else if (opcode == 2'b11) begin
+                x_next = {fu.req_op1, {G{1'b0}}};
+                y_next = {fu.req_op2, {G{1'b0}}};
+                z_next = '0;
+            end else begin
+                x_next = {fu.req_op1, {G{1'b0}}};
+                y_next = {fu.req_op1, {G{1'b0}}};
+                z_next = '0;
+            end
         end
-        INIT: begin
-            
+        NORMALIZE:
+        begin
+            shift_next = 4'b0;
+            shift_right_next = 1'b0;
+            if (opcode == 2'b00) begin
+                x_next = sh_out;
+                if (x[W-1]) begin
+                    y_next = negative_y;
+                end
+                if (div_shift) begin
+                    shift_next = shift_diff + 1'b1;
+                    if (l == 4'd14) begin
+                        normalized = y_next >>> 1;
+                        y_next = normalized;
+                    end
+                end
+            end else if (opcode == 2'b10) begin
+                angle_shift = (z > COS_HI || z < COS_LO);
+                if (angle_shift)
+                    z_next = z_sum;
+            end else if (opcode == 2'b11) begin
+                x_next = xp;
+                y_next = ym;
+            end else if (opcode == 2'b01) begin
+                if (sqrt_shift) begin
+                    shift_next = sqrt_amt;
+                    shift_right_next = tooBig;
+                end
+                normalized = sh_out;
+                x_next = normalized + (format ? SQRT_C_DIR : SQRT_C_POS);
+                y_next = normalized - (format ? SQRT_C_DIR : SQRT_C_POS);
+            end
         end
-        NORMALIZE: begin
-            z_next = 16'h0000;
-            k_next = 6'sd0;
-            flip_next = 1'b0;
-            case (opcode)
-                tinytracer_pkg::CORDIC_DIV: begin
-                    x_next = div_x;
-                    y_next = $signed(div_y) >>> div_k;
-                    k_next = {1'b0, div_k};
-                end
-                tinytracer_pkg::CORDIC_COS: begin
-                    x_next = fu.req_op1;
-                    y_next = 16'h0000;
-                    z_next = cos_hi ? (fu.req_op2 - PI) : cos_lo ? (fu.req_op2 + PI) : fu.req_op2;
-                    flip_next = cos_hi | cos_lo;
-                end
-                tinytracer_pkg::CORDIC_MAG: begin
-                    x_next = fu.req_op1[15] ? -fu.req_op1 : fu.req_op1;
-                    y_next = fu.req_op2[15] ? -fu.req_op2 : fu.req_op2;
-                end
-                tinytracer_pkg::CORDIC_SQRT: begin
-                    x_next = sq_w + 16'h1000;   // w' + 0.25
-                    y_next = sq_w - 16'h1000;   // w' - 0.25
-                    k_next = sq_k;
-                end
-            endcase
-        end
-        LOOP: begin
-            // Shifting a 16-bit value right by 16 gives the same result as by 15,
-            // so the i = 16 step of sqrt can use a 4-bit shift amount.
-            iteration = j[3:0] | {4{j[4]}};
-            ym = y[15] ? -y : y;
-            x_shifted = x >>> iteration;
+        LOOP:
+        begin
+            x_shifted = sh_out;
             y_shifted = ((opcode == 2'b01) ? ym : y) >>> iteration;
-            y_subtract = (opcode == 2'b10) ? z[15] : ~y[15];
-            x_subtract = (opcode == 2'b01) ? 1'b1 : (opcode[0] ? y[15] : ~z[15]);
-            x_next = (opcode == 2'b00)? x : (x + (y_shifted ^ {16{x_subtract}}) + x_subtract);
-            y_next = y + (x_shifted ^ {16{y_subtract}}) + y_subtract;
-            one_shifted = (16'h4000 >>> iteration);
-            z_subtract = (opcode == 2'b10) ? ~z[15] : y[15];
-            z_sum = z + z_subtract + ((opcode[1] ? ATAN_LUT[{iteration, 4'b0} +: 16] : one_shifted) ^ {16{z_subtract}});
+            y_subtract = (opcode == 2'b10) ? z[W-1] : ~y[W-1];
+            x_subtract = (opcode == 2'b01) ? 1'b1 : (opcode[0] ? y[W-1] : ~z[W-1]);
+            x_next = (opcode == 2'b00)? x : (x + (y_shifted ^ {W{x_subtract}}) + x_subtract);
+            y_next = y + (x_shifted ^ {W{y_subtract}}) + y_subtract;
             z_next = z_sum;
         end
-        REVERT: begin
-            if (k != 6'sd0) begin
-                case (opcode)
-                    tinytracer_pkg::CORDIC_DIV: begin
-                        // Undo division normalization: multiply by 2^k
-                        z_next = $signed(z) <<< $unsigned(k);
-                    end
-
-                    tinytracer_pkg::CORDIC_SQRT: begin
-                        // Undo sqrt normalization: multiply by 2^k
-                        if (k > 0)
-                            x_next = $signed(x) <<< $unsigned(k);
-                        else
-                            x_next = $signed(x) >>> $unsigned(-k);
-                    end
-
-                    default: begin
-                        // COS and MAG require no reversion
-                    end
-                endcase
+        REVERT:
+        begin
+            if (opcode ==  2'b00) begin
+                if (|((z ^ {W{z[W-1]}}) & ({W{1'b1}} << (5'(W - 1) - shift_q))))
+                    z_next = z[W-1] ? {1'b1, {(W-1){1'b0}}} : {1'b0, {(W-1){1'b1}}};
+                else
+                    z_next = sh_out;
+            end else if (opcode == 2'b10) begin
+                x_next = angle_shift_q ? negative_x : x;
+            end else if (opcode == 2'b01) begin
+                x_next = sh_out;
             end
         end
-        POSTSCALE: begin
-            // cosine / vector magnitude
-            if (opcode == tinytracer_pkg::CORDIC_COS ||
-                opcode == tinytracer_pkg::CORDIC_MAG) begin
-                scale_result = (scale_input >>> 1)
-                            + (scale_input >>> 3)
-                            - (scale_input >>> 6)
-                            - (scale_input >>> 9)
-                            - (scale_input >>> 13);
-
-            // square root
-            end else if (opcode == tinytracer_pkg::CORDIC_SQRT) begin
-                scale_result = scale_input
-                            + (scale_input >>> 2)
-                            - (scale_input >>> 5)
-                            - (scale_input >>> 7)
-                            - (scale_input >>> 8)
-                            + (scale_input >>> 11);
-            end
-
-            // saturate before storing in 16 bits
-            if (scale_result > 32'sd32767) begin
-                x_next = 16'h7FFF;
-            end else if (scale_result < -32'sd32768) begin
-                x_next = 16'h8000;
+        POSTSCALE:
+        begin
+            if (opcode[0] | opcode[1]) begin
+                postscale_x = {opcode[1] & x[W-1], x};
+                postscale_39x = (postscale_x <<< 5) + (postscale_x <<< 3) - postscale_x;
+                postscale_product = (opcode[1] ? (postscale_39x <<< 8) : (postscale_39x <<< 9))
+                                  - (opcode[1] ? postscale_39x : (postscale_39x <<< 3))
+                                  + (opcode[1] ? (postscale_x <<< 2) : (postscale_x <<< 7));
+                if ((~opcode[1] & (postscale_product[W+14] | postscale_product[W+13]))
+                    | (~postscale_product[W+13] & (&postscale_product[W+12:W-3])))
+                    postscale_result = 16'h7FFF;
+                else
+                    postscale_result = postscale_product[W+13:W-2] + postscale_product[W-3];
+                fu.resp_result = postscale_result;
             end else begin
-                x_next = scale_result[15:0];
+                if (~z[W-1] & (&z[W-2:G-1]))
+                    fu.resp_result = 16'h7FFF;
+                else
+                    fu.resp_result = z[W-1:G] + z[G-1];
             end
+
+            fu.resp_done = 1'b1;
         end
+
     endcase
+
 end
 
 endmodule
