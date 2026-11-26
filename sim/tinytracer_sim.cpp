@@ -78,6 +78,9 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#ifdef CORDIC_RTL
+#include "cordic_rtl.h"
+#endif
 using namespace std;
 
 constexpr int PF = 7, DF = 14, MEMW = 512, BOUNCES = 8, MAXSPP = 32;
@@ -138,6 +141,20 @@ struct Fix {  // 16-bit saturating fixed point, held in int32
   static S shift(S a, int k) {  // k > 0: divide by 2^k (rounded); k < 0: multiply by 2^-k (clamped)
     return k > 0 ? (S)((a + (1 << (k - 1))) >> k) : k < 0 ? sat((int64_t)a * (1LL << -k)) : a;
   }
+#ifdef CORDIC_RTL
+  // Build with -DCORDIC_RTL to run div, sqrt, mag and cos on the CORDIC RTL
+  // (Verilator model, see raytracer/cordic). Without it, the exact math below is used.
+  static CordicRTL& rtl() { static CordicRTL unit; return unit; }
+  static S div(S a, S b, int sh) {
+    if (sh != 14) { std::fprintf(stderr, "CORDIC div only returns Q2.14\n"); std::exit(1); }
+    return rtl().div((int16_t)a, (int16_t)b);
+  }
+  static S sqrtv(S a, int f) {  // the hardware never starts a negative sqrt, so it's kept out
+    return a < 0 ? 0 : rtl().sqrt((int16_t)a, f == 14 ? CordicRTL::DIR : CordicRTL::POS);
+  }
+  static S mag(S a, S b) { return rtl().mag((int16_t)a, (int16_t)b); }
+  static S cosv(S a) { return rtl().cos((int16_t)a); }
+#else
   static S div(S a, S b, int sh) {  // (a << sh) / b, rounded to nearest
     if (b == 0) return sat(a >= 0 ? 1LL << 40 : -(1LL << 40));
     int64_t n = (int64_t)a * (1LL << sh), d = b;
@@ -154,6 +171,7 @@ struct Fix {  // 16-bit saturating fixed point, held in int32
   static S sqrtv(S a, int f) { return a > 0 ? sat(isqrt((int64_t)a << f)) : 0; }
   static S mag(S a, S b) { return sat(isqrt((int64_t)a * a + (int64_t)b * b)); }
   static S cosv(S a) { return sat(llround(std::cos(a / 16384.0) * 16384)); }  // angle in radians, DIR
+#endif
   static double rad(S a) { return a / 16384.0; }
 };
 struct Flt {  // double-precision reference with the same interface

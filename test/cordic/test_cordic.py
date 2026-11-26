@@ -82,98 +82,112 @@ async def cordic_operations(dut):
     q7 = 1 << 7
     cases = []
 
+    # DIV (Q2.14): result = op1 / op2, saturating to the 16-bit range.
     for numerator, denominator in [
+        (0x0000, 0x4000),  # 0 / 1: zero numerator
         (0x4000, 0x4000),  # 1 / 1
-        (0x3000, 0x4000),  # 0.75 / 1
-        (0x2000, 0x4000),  # 0.5 / 1
-        (0x5000, 0x4000),  # 1.25 / 1: numerator > denominator
+        (0x1000, 0x3000),  # 0.25 / 0.75 = 1/3: repeating quotient, every bit used
         (0x6000, 0x4000),  # 1.5 / 1: numerator > denominator
-        (0x3000, 0x2000),  # 0.75 / 0.5: scale denominator left by 1
-        (0x2000, 0x1800),  # 0.5 / 0.375: scale denominator left by 2
-        (0x5000, 0x3000),  # 1.25 / 0.75: halve numerator and scale denominator
-        (0x2800, 0x5000),  # 0.625 / 1.25
-        (0x1000, 0x1000),  # 0.25 / 0.25
-        (0x2000, 0x1000),  # 0.5 / 0.25 = 2.0: positive limit
-        (0x3000, 0x1000),  # 0.75 / 0.25 = 3.0: positive saturation
-        (0x5000, 0x1000),  # 1.25 / 0.25 = 5.0: large positive saturation
-        (0x0800, 0x1000),  # 0.125 / 0.25
-        (0x1800, 0x1000),  # 0.375 / 0.25
-        (0x5000, 0xF000),  # 1.25 / -0.25 = -5.0: negative saturation
-        (0xB000, 0x1000),  # -1.25 / 0.25 = -5.0: negative saturation
-        (0xB000, 0xF000),  # -1.25 / -0.25 = 5.0: positive saturation
-        (0xE000, 0x1000),  # -0.5 / 0.25 = -2.0: negative limit
-        (0xE000, 0x2000),  # -0.5 / 0.5 = -1.0
-        (0x2000, 0xE000),  # 0.5 / -0.5 = -1.0
-        (0xE000, 0xE000),  # -0.5 / -0.5 = 1.0
-        (0xE000, 0x4000),  # -0.5 / 1: negative numerator
-        (0x2000, 0xC000),  # 0.5 / -1: negative denominator
-        (0xE000, 0xC000),  # -0.5 / -1: both operands negative
+        (0x7000, 0x4000),  # 1.75 / 1: numerator's top bit at 14 (l == 14 path)
+        (0x7FFF, 0x4000),  # 1.99994 / 1: largest quotient below 2
+        (0x3FFF, 0x2000),  # 1.99988: just under the positive limit
+        (0x2000, 0x1000),  # 0.5 / 0.25 = 2.0: saturates to 0x7FFF
+        (0x7FFF, 0x0001),  # largest / smallest: maximum normalization, saturates
+        (0x0003, 0x0004),  # tiny operands: normalization shifts both far
+        (0x0001, 0x7FFF),  # tiny quotient: rounds to 0
+        (0xE000, 0x1000),  # -0.5 / 0.25 = -2.0: exactly the negative limit
+        (0x8000, 0x0001),  # most negative / smallest: negative saturation
+        (0x8000, 0xC000),  # -2 / -1 = 2.0: most negative numerator, saturates
+        (0x8000, 0x7FFF),  # -2 / 1.99994: most negative numerator, in range
+        (0xC000, 0x6000),  # -1 / 1.5: negative numerator
+        (0x3000, 0xA000),  # 0.75 / -1.5: negative denominator
+        (0x9000, 0xB000),  # -1.75 / -1.25: both negative
+        (0x6000, 0x8000),  # 1.5 / -2: denominator -2.0 can't be negated (known weak spot)
     ]:
         quotient = signed16(numerator) / signed16(denominator)
         # Division results clamp to the signed 16-bit range.
         expected = min(0x7FFF, max(-0x8000, round(quotient * q14)))
         cases.append((0b00, numerator, denominator, expected, 2, 14, 1))
 
-    # POS square roots (Q9.7, fmt=0). Adjacent raw inputs around powers of
-    # two help expose late-iteration rounding when the residual gets tiny.
+    # SQRT POS (Q9.7, fmt=0). Normalization moves the leading one to bit 6 or 7
+    # (w in [0.5, 2)): inputs below shift left, inputs of 2.0 and up shift right.
     for value in [
-        0x0008,
-        0x001F, 0x0020, 0x0021,  # around 0.25
-        0x003F, 0x0040, 0x0041,  # around 0.5
-        0x007F, 0x0080, 0x0081,  # around 1.0
-        0x0120,
-        0x00FF, 0x0100, 0x0101,  # around 2.0
-        0x01FF, 0x0200, 0x0201,  # around 4.0
-        0x03FF, 0x0400, 0x0401,  # around 8.0
-        0x0800,
-        0x0FFF, 0x1000, 0x1001,  # around 32.0; exercises right normalization
-        0x00AB, 0x0155, 0x02AB, 0x0555,  # irregular binary patterns
-        0x1FFF, 0x2000, 0x2001,  # around 64.0
-        0x2AAB,  # irregular pattern above 64.0
-        0x3FFF, 0x4000, 0x4001,  # around 128.0
-        0x5555,  # irregular pattern above 128.0
-        0x7FFD, 0x7FFE, 0x7FFF,  # largest positive POS inputs
+        0x0000,  # 0: can't be normalized
+        0x0001,  # smallest input: largest left shift (odd bit)
+        0x0002,  # smallest even-bit input
+        0x003F,  # just below 0.5: left shift
+        0x0040,  # 0.5: bottom of the window, no shift
+        0x0080,  # 1.0: odd/even boundary inside the window
+        0x00FF,  # just below 2.0: top of the window, no shift
+        0x0100,  # 2.0: first input that shifts right
+        0x0155,  # irregular pattern, right shift by 2
+        0x1000,  # 32.0: right shift
+        0x4000,  # 128.0: top bit, largest right shift
+        0x7FFF,  # largest input
     ]:
         root = math.sqrt(signed16(value) / q7)
         cases.append((0b01, value, 0x0000, round(root * q7), 8, 7, 0))
 
-    # DIR square roots (Q2.14, fmt=1). Values below 0.5 force left
-    # normalization by an even number of bits; 0x1FFF is just below 0.5.
-    for value in [0x0FFF, 0x1000, 0x1FFF, 0x2000, 0x4000, 0x5000, 0x6000]:
+    # SQRT DIR (Q2.14, fmt=1). Normalization moves the leading one to bit 12 or 13
+    # (w in [0.25, 1)): inputs below shift left, inputs of 1.0 and up shift right.
+    for value in [
+        0x0000,  # 0: can't be normalized
+        0x0001,  # smallest input: largest left shift (odd bit)
+        0x0002,  # smallest even-bit input
+        0x0FFF,  # just below 0.25: left shift by 2
+        0x1000,  # 0.25: bottom of the window, no shift
+        0x1C00,  # 0.4375: overflowed under the old [0.5, 2) window
+        0x2000,  # 0.5: odd/even boundary inside the window
+        0x3FFF,  # just below 1.0: top of the window, no shift
+        0x4000,  # 1.0: first input that shifts right (loses its low bits)
+        0x7000,  # 1.75: overflowed under the old [0.5, 2) window
+        0x7FFF,  # largest input
+    ]:
         root = math.sqrt(signed16(value) / q14)
         cases.append((0b01, value, 0x0000, round(root * q14), 12, 14, 1))
 
+    # COS (Q2.14, angle in radians). Angles beyond +-1.7433 (0x6F92 / 0x906E)
+    # are folded by +-pi and the result negated.
     for angle in [
-        0x0000,  # 0 radians
-        0x2000,  # +0.5 radians
-        0xE000,  # -0.5 radians
-        0x4000,  # +1.0 radians
-        0xC000,  # -1.0 radians
-        0x6000,  # +1.5 radians
-        0xA000,  # -1.5 radians
-        0x7333,  # +1.8 radians: triggers angleShift; REVERT must negate x/y
-        0x8CCD,  # -1.8 radians: triggers angleShift; REVERT must negate x/y
+        0x0000,  # 0: cos = 1, largest output
+        0x0001,  # smallest positive angle
+        0x2000,  # +0.5
+        0xE000,  # -0.5: negative angle
+        0x6488,  # +pi/2: cos = 0
+        0x9B78,  # -pi/2: cos = 0
+        0x6F92,  # +1.7433: largest angle not folded
+        0x6F93,  # just above: first folded angle
+        0x906E,  # -1.7433: most negative angle not folded
+        0x906D,  # just below: first folded negative angle
+        0x7FFF,  # +1.99994: largest angle
+        0x8000,  # -2.0: most negative angle
     ]:
         angle_real = signed16(angle) / q14
         cosine = math.cos(angle_real)
         cases.append((0b10, 0x4000, angle, round(cosine * q14), 5, 14, 1))
 
-    # POS magnitude vectors (Q9.7).
+    # MAG POS (Q9.7). The CORDIC gain (1.647) overflows x when the magnitude
+    # is above about 0x4DB4 raw (155.4 in POS).
     for x_value, y_value in [
-        (0x0080, 0x0000),  # (1, 0)
-        (0x0040, 0x0040),  # (0.5, 0.5)
-        (0x004D, 0x0066),  # approximately (0.6, 0.8)
-        (0x0180, 0x0200),  # (3, 4)
+        (0x0000, 0x0000),  # zero vector
+        (0x0080, 0x0000),  # (1, 0): on the x axis
+        (0x0000, 0x0080),  # (0, 1): on the y axis
+        (0x0180, 0x0200),  # (3, 4) = 5
+        (0xFE80, 0xFE00),  # (-3, -4): both components negative
+        (0x3000, 0x3000),  # (96, 96) = 135.8: large, still in range
+        (0x4E00, 0x0000),  # 156: just above the overflow limit (known weak spot)
     ]:
         magnitude = math.hypot(signed16(x_value) / q7, signed16(y_value) / q7)
         cases.append((0b11, x_value, y_value, round(magnitude * q7), 8, 7, 0))
 
-    # DIR magnitude vectors (Q2.14).
+    # MAG DIR (Q2.14). Same raw limit: about 1.214.
     for x_value, y_value in [
+        (0x0001, 0x0001),  # smallest nonzero vector
         (0x4000, 0x0000),  # (1, 0)
-        (0x2000, 0x2000),  # (0.5, 0.5)
-        (0x2666, 0x3333),  # approximately (0.6, 0.8)
-        (0x3000, 0x3000),  # (0.75, 0.75)
+        (0x2666, 0x3333),  # about (0.6, 0.8) = 1
+        (0xC000, 0x2000),  # (-1, 0.5): negative x
+        (0x4D00, 0x0000),  # 1.203: just below the overflow limit
+        (0x4E00, 0x0000),  # 1.219: just above the overflow limit (known weak spot)
     ]:
         magnitude = math.hypot(signed16(x_value) / q14, signed16(y_value) / q14)
         cases.append((0b11, x_value, y_value, round(magnitude * q14), 8, 14, 1))

@@ -11,32 +11,26 @@ module cordic #(
 
 localparam int G = 4;
 localparam int W = 16 + G;
-
-localparam [16*W-1:0] ATAN_LUT = {
-    20'h00008,
-    20'h00010,
-    20'h00020,
-    20'h00040,
-    20'h00080,
-    20'h00100,
-    20'h00200,
-    20'h00400,
-    20'h00800,
-    20'h01000,
-    20'h01FFD,
-    20'h03FEB,
-    20'h07F57,
-    20'h0FADC,
-    20'h1DAC6,
-    20'h3243F
+localparam [16*17-1:0] ATAN_LUT = {
+    17'h00001,
+    17'h00002,
+    17'h00004,
+    17'h00008,
+    17'h00010,
+    17'h00020,
+    17'h00040,
+    17'h00080,
+    17'h00100,
+    17'h00200,
+    17'h00400,
+    17'h007FD,
+    17'h00FEB,
+    17'h01F5C,
+    17'h03B59,
+    17'h06488
 };
-localparam [W-1:0] PI_POS = 20'hC90FE;
-localparam [W-1:0] PI_NEG = 20'h36F02;
-localparam [W-1:0] ONE = W'(1) << (W - 2);
 localparam [W-1:0] SQRT_C_DIR = W'(16'h1000) << G;
 localparam [W-1:0] SQRT_C_POS = W'(16'h0020) << G;
-localparam signed [W-1:0] COS_HI = {16'h6F92, {G{1'b0}}};
-localparam signed [W-1:0] COS_LO = {16'h906E, {G{1'b0}}};
 
 parameter   IDLE = 3'b000,
             INIT = 3'b001,
@@ -48,14 +42,15 @@ parameter   IDLE = 3'b000,
 reg [2:0] current_state, next_state;
 reg [4:0] j;
 reg [4:0] iteration;
-reg signed [W-1:0] x, y, z;
-reg signed [W-1:0] x_next, y_next, z_next;
+reg signed [W-1:0] x, y;
+reg signed [W-1:0] x_next, y_next;
+reg signed [16:0] z, z_next;
 reg signed [W-1:0] negative_x, negative_y;
 reg signed [W-1:0] x_shifted, y_shifted;
 reg x_subtract, y_subtract;
 reg z_subtract;
-reg [W-1:0] one_shifted;
-reg [W-1:0] z_sum;
+reg [16:0] one_shifted;
+reg [16:0] z_sum;
 reg repeated;
 wire start;
 reg [3:0] k, l, shift_diff, shift_next, shift_q, shift_base;
@@ -163,8 +158,9 @@ always @(*) begin
     x_next = x;
     y_next = y;
     z_next = z;
-    negative_x = -x;
-    negative_y = -y;
+    // Saturating negation: -(-2.0) has no two's-complement value, so it gives the largest positive.
+    negative_x = (x == {1'b1, {(W-1){1'b0}}}) ? {1'b0, {(W-1){1'b1}}} : -x;
+    negative_y = (y == {1'b1, {(W-1){1'b0}}}) ? {1'b0, {(W-1){1'b1}}} : -y;
     x_subtract = 1'b0;
     y_subtract = 1'b0;
     z_subtract = 1'b0;
@@ -214,7 +210,7 @@ always @(*) begin
         end
     end else if (current_state == REVERT) begin
         if (opcode == 2'b00) begin
-            sh_in = z;
+            sh_in = {z, {(G - 1){1'b0}}};
             sh_amt = {1'b0, shift_q};
             sh_left = 1'b1;
         end else begin
@@ -228,11 +224,11 @@ always @(*) begin
     for (int i = 0; i < W; i++)
         sh_out[i] = sh_left ? sh_r[W-1-i] : sh_r[i];
 
-    one_shifted = (ONE >>> iteration);
+    one_shifted = (17'h08000 >>> iteration);
     if (current_state == LOOP)
-        z_subtract = (opcode == 2'b10) ? ~z[W-1] : y[W-1];
-    z_sum = z + z_subtract + (((current_state == LOOP) ? (opcode[1] ? ATAN_LUT[iteration[3:0]*W +: W] : one_shifted)
-                                                       : (z[W-1] ? PI_POS : PI_NEG)) ^ {W{z_subtract}});
+        z_subtract = (opcode == 2'b10) ? ~z[16] : y[W-1];
+    z_sum = z + z_subtract + (((current_state == LOOP) ? (opcode[1] ? ATAN_LUT[iteration[3:0]*17 +: 17] : one_shifted)
+                                                       : (z[16] ? 17'h19220 : 17'h06DE0)) ^ {17{z_subtract}});
 
     case(current_state)
         IDLE:
@@ -246,7 +242,7 @@ always @(*) begin
             end else if (opcode == 2'b10) begin
                 x_next = {fu.req_op1, {G{1'b0}}};
                 y_next = '0;
-                z_next = {fu.req_op2, {G{1'b0}}};
+                z_next = {fu.req_op2, 1'b0};
             end else if (opcode == 2'b11) begin
                 x_next = {fu.req_op1, {G{1'b0}}};
                 y_next = {fu.req_op2, {G{1'b0}}};
@@ -274,12 +270,14 @@ always @(*) begin
                     end
                 end
             end else if (opcode == 2'b10) begin
-                angle_shift = (z > COS_HI || z < COS_LO);
+                angle_shift = (z > 17'sh0DF24 || z < 17'sh120DC);
                 if (angle_shift)
                     z_next = z_sum;
             end else if (opcode == 2'b11) begin
-                x_next = xp;
-                y_next = ym;
+                // Quarter the inputs: the CORDIC gain (1.647) would push x past 2.0
+                // for magnitudes above 1.214. POSTSCALE multiplies the result back by 4.
+                x_next = $unsigned(xp) >> 2;  // unsigned: |-2.0| = 0x80000 reads as +2.0
+                y_next = $unsigned(ym) >> 2;
             end else if (opcode == 2'b01) begin
                 if (sqrt_shift) begin
                     shift_next = sqrt_amt;
@@ -294,8 +292,8 @@ always @(*) begin
         begin
             x_shifted = sh_out;
             y_shifted = ((opcode == 2'b01) ? ym : y) >>> iteration;
-            y_subtract = (opcode == 2'b10) ? z[W-1] : ~y[W-1];
-            x_subtract = (opcode == 2'b01) ? 1'b1 : (opcode[0] ? y[W-1] : ~z[W-1]);
+            y_subtract = (opcode == 2'b10) ? z[16] : ~y[W-1];
+            x_subtract = (opcode == 2'b01) ? 1'b1 : (opcode[0] ? y[W-1] : ~z[16]);
             x_next = (opcode == 2'b00)? x : (x + (y_shifted ^ {W{x_subtract}}) + x_subtract);
             y_next = y + (x_shifted ^ {W{y_subtract}}) + y_subtract;
             z_next = z_sum;
@@ -303,10 +301,10 @@ always @(*) begin
         REVERT:
         begin
             if (opcode ==  2'b00) begin
-                if (|((z ^ {W{z[W-1]}}) & ({W{1'b1}} << (5'(W - 1) - shift_q))))
-                    z_next = z[W-1] ? {1'b1, {(W-1){1'b0}}} : {1'b0, {(W-1){1'b1}}};
+                if (|((z ^ {17{z[16]}}) & (17'h1FFFF << (5'd16 - shift_q))))
+                    z_next = z[16] ? 17'h10000 : 17'h0FFFF;
                 else
-                    z_next = sh_out;
+                    z_next = sh_out[W-1:G-1];
             end else if (opcode == 2'b10) begin
                 x_next = angle_shift_q ? negative_x : x;
             end else if (opcode == 2'b01) begin
@@ -321,17 +319,23 @@ always @(*) begin
                 postscale_product = (opcode[1] ? (postscale_39x <<< 8) : (postscale_39x <<< 9))
                                   - (opcode[1] ? postscale_39x : (postscale_39x <<< 3))
                                   + (opcode[1] ? (postscale_x <<< 2) : (postscale_x <<< 7));
-                if ((~opcode[1] & (postscale_product[W+14] | postscale_product[W+13]))
+                if (opcode == 2'b11) begin
+                    // mag: result x 4 (inputs were quartered), never negative
+                    if ((|postscale_product[W+14:W+11]) | (&postscale_product[W+10:W-5]))
+                        postscale_result = 16'h7FFF;
+                    else
+                        postscale_result = postscale_product[W+11:W-4] + postscale_product[W-5];
+                end else if ((~opcode[1] & (postscale_product[W+14] | postscale_product[W+13]))
                     | (~postscale_product[W+13] & (&postscale_product[W+12:W-3])))
                     postscale_result = 16'h7FFF;
                 else
                     postscale_result = postscale_product[W+13:W-2] + postscale_product[W-3];
                 fu.resp_result = postscale_result;
             end else begin
-                if (~z[W-1] & (&z[W-2:G-1]))
+                if (~z[16] & (&z[15:0]))
                     fu.resp_result = 16'h7FFF;
                 else
-                    fu.resp_result = z[W-1:G] + z[G-1];
+                    fu.resp_result = z[16:1] + z[0];
             end
 
             fu.resp_done = 1'b1;
