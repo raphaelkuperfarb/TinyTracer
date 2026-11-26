@@ -9,7 +9,6 @@ extern const VlVarTableEntry Vtop_fu_if__VpiVarTable2[];
 extern const VlVarTableEntry Vtop___024root__VpiVarTable3[];
 extern const VlVarTableEntry Vtop___024root__VpiVarTable4[];
 extern const VlVarTableEntry Vtop___024root__VpiVarTable5[];
-extern const VlVarTableEntry Vtop___024root__VpiVarTable6[];
 extern const VlScopeTableEntry Vtop__Syms__VpiScopeTable[];
 
 
@@ -114,9 +113,6 @@ extern const VlVarTableEntry Vtop___024root__VpiVarTable4[] = {
 extern const VlVarTableEntry Vtop___024root__VpiVarTable5[] = {
     {"i", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__unnamedblk2__DOT__i), VLVT_UINT32, (VLVD_NODIR|VLVF_PUB_RW|VLVF_DPI_CLAY|VLVF_SIGNED), 0, 1, {31, 0, 0, 0, 0, 0}},
 };
-extern const VlVarTableEntry Vtop___024root__VpiVarTable6[] = {
-    {"i", offsetof(Vtop___024root, tt_um_cordic__DOT__u_cordic__DOT__unnamedblk3__DOT__i), VLVT_UINT32, (VLVD_NODIR|VLVF_PUB_RW|VLVF_DPI_CLAY|VLVF_SIGNED), 0, 1, {31, 0, 0, 0, 0, 0}},
-};
 extern const VlScopeTableEntry Vtop__Syms__VpiScopeTable[] = {
     {offsetof(Vtop__Syms, __Vscopep_TOP), "TOP", "TOP", "<null>", 0, VerilatedScope::SCOPE_OTHER},
     {offsetof(Vtop__Syms, __Vscopep_tinytracer_pkg), "tinytracer_pkg", "tinytracer_pkg", "tinytracer_pkg", -9, VerilatedScope::SCOPE_PACKAGE},
@@ -125,7 +121,6 @@ extern const VlScopeTableEntry Vtop__Syms__VpiScopeTable[] = {
     {offsetof(Vtop__Syms, __Vscopep_tt_um_cordic__u_cordic), "tt_um_cordic.u_cordic", "u_cordic", "cordic", -9, VerilatedScope::SCOPE_MODULE},
     {offsetof(Vtop__Syms, __Vscopep_tt_um_cordic__u_cordic__unnamedblk1), "tt_um_cordic.u_cordic.unnamedblk1", "unnamedblk1", "<null>", -9, VerilatedScope::SCOPE_OTHER},
     {offsetof(Vtop__Syms, __Vscopep_tt_um_cordic__u_cordic__unnamedblk2), "tt_um_cordic.u_cordic.unnamedblk2", "unnamedblk2", "<null>", -9, VerilatedScope::SCOPE_OTHER},
-    {offsetof(Vtop__Syms, __Vscopep_tt_um_cordic__u_cordic__unnamedblk3), "tt_um_cordic.u_cordic.unnamedblk3", "unnamedblk3", "<null>", -9, VerilatedScope::SCOPE_OTHER},
 };
 #if defined(__GNUC__)
 # pragma GCC diagnostic pop
@@ -139,7 +134,7 @@ Vtop__Syms::Vtop__Syms(VerilatedContext* contextp, const char* namep, Vtop* mode
     , TOP{this, namep}
 {
     // Check resources
-    Verilated::stackCheck(188);
+    Verilated::stackCheck(224);
     // Setup sub module instances
     TOP__tinytracer_pkg.ctor(this, "tinytracer_pkg");
     TOP__tt_um_cordic__DOT__fu.ctor(this, "tt_um_cordic.fu");
@@ -154,7 +149,7 @@ Vtop__Syms::Vtop__Syms(VerilatedContext* contextp, const char* namep, Vtop* mode
     TOP__tinytracer_pkg.__Vconfigure(true);
     TOP__tt_um_cordic__DOT__fu.__Vconfigure(true);
     // Setup scopes
-    VerilatedScope::scopesConstructFromTable(Vtop__Syms__VpiScopeTable, 8, this);
+    VerilatedScope::scopesConstructFromTable(Vtop__Syms__VpiScopeTable, 7, this);
     // Set up scope hierarchy
     __Vhier.add(0, __Vscopep_tinytracer_pkg);
     __Vhier.add(0, __Vscopep_tt_um_cordic);
@@ -162,7 +157,6 @@ Vtop__Syms::Vtop__Syms(VerilatedContext* contextp, const char* namep, Vtop* mode
     __Vhier.add(__Vscopep_tt_um_cordic, __Vscopep_tt_um_cordic__u_cordic);
     __Vhier.add(__Vscopep_tt_um_cordic__u_cordic, __Vscopep_tt_um_cordic__u_cordic__unnamedblk1);
     __Vhier.add(__Vscopep_tt_um_cordic__u_cordic, __Vscopep_tt_um_cordic__u_cordic__unnamedblk2);
-    __Vhier.add(__Vscopep_tt_um_cordic__u_cordic, __Vscopep_tt_um_cordic__u_cordic__unnamedblk3);
     // Setup export functions - final: 0
     // Setup export functions - final: 1
     // Setup public variables
@@ -209,7 +203,6 @@ Vtop__Syms::Vtop__Syms(VerilatedContext* contextp, const char* namep, Vtop* mode
     __Vscopep_tt_um_cordic__u_cordic->varInsert("SQRT_C_POS", const_cast<void*>(static_cast<const void*>(&(TOP.tt_um_cordic__DOT__u_cordic__DOT__SQRT_C_POS))), true, VLVT_UINT16, VLVD_NODIR|VLVF_PUB_RW, 0, 1 ,15,0);
     __Vscopep_tt_um_cordic__u_cordic__unnamedblk1->varsInsertFromTable(Vtop___024root__VpiVarTable4, 1, &(TOP));
     __Vscopep_tt_um_cordic__u_cordic__unnamedblk2->varsInsertFromTable(Vtop___024root__VpiVarTable5, 1, &(TOP));
-    __Vscopep_tt_um_cordic__u_cordic__unnamedblk3->varsInsertFromTable(Vtop___024root__VpiVarTable6, 1, &(TOP));
 }
 
 Vtop__Syms::~Vtop__Syms() {
@@ -220,7 +213,6 @@ Vtop__Syms::~Vtop__Syms() {
     __Vhier.remove(__Vscopep_tt_um_cordic, __Vscopep_tt_um_cordic__u_cordic);
     __Vhier.remove(__Vscopep_tt_um_cordic__u_cordic, __Vscopep_tt_um_cordic__u_cordic__unnamedblk1);
     __Vhier.remove(__Vscopep_tt_um_cordic__u_cordic, __Vscopep_tt_um_cordic__u_cordic__unnamedblk2);
-    __Vhier.remove(__Vscopep_tt_um_cordic__u_cordic, __Vscopep_tt_um_cordic__u_cordic__unnamedblk3);
     // Clear keys from hierarchy map after values have been removed
     __Vhier.clear();
     // Tear down scopes
@@ -231,7 +223,6 @@ Vtop__Syms::~Vtop__Syms() {
     VL_DO_CLEAR(delete __Vscopep_tt_um_cordic__u_cordic, __Vscopep_tt_um_cordic__u_cordic = nullptr);
     VL_DO_CLEAR(delete __Vscopep_tt_um_cordic__u_cordic__unnamedblk1, __Vscopep_tt_um_cordic__u_cordic__unnamedblk1 = nullptr);
     VL_DO_CLEAR(delete __Vscopep_tt_um_cordic__u_cordic__unnamedblk2, __Vscopep_tt_um_cordic__u_cordic__unnamedblk2 = nullptr);
-    VL_DO_CLEAR(delete __Vscopep_tt_um_cordic__u_cordic__unnamedblk3, __Vscopep_tt_um_cordic__u_cordic__unnamedblk3 = nullptr);
     // Tear down sub module instances
     TOP__tt_um_cordic__DOT__fu.dtor();
     TOP__tinytracer_pkg.dtor();

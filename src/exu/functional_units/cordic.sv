@@ -30,6 +30,19 @@ localparam [255:0] ATAN_LUT = {
 localparam [15:0] SQRT_C_DIR = 16'h1000;
 localparam [15:0] SQRT_C_POS = 16'h0020;
 
+function automatic [3:0] msb15(input [14:0] v);
+    logic [7:0] u;
+    logic [3:0] u2;
+    logic [1:0] u3;
+    msb15[3] = |v[14:8];
+    u        = msb15[3] ? {1'b0, v[14:8]} : v[7:0];
+    msb15[2] = |u[7:4];
+    u2       = msb15[2] ? u[7:4] : u[3:0];
+    msb15[1] = |u2[3:2];
+    u3       = msb15[1] ? u2[3:2] : u2[1:0];
+    msb15[0] = u3[1];
+endfunction
+
 parameter   IDLE = 3'b000,
             INIT = 3'b001,
             NORMALIZE = 3'b011,
@@ -179,12 +192,8 @@ always @(*) begin
 
     xp = x[15] ? negative_x : x;
     ym = y[15] ? negative_y : y;
-    for (int i = 0; i < 15; i++) begin
-        if (xp[i])
-            k = i;
-        if (ym[i])
-            l = i;
-    end
+    k = msb15(xp[14:0]);
+    l = msb15(ym[14:0]);
     shift_diff = l - k;
     tooBig = format ? x[14] : |x[14:8];
     shift_base = (format ? 4'd12 : 4'd6) | k[0];
