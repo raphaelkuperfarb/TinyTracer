@@ -11,23 +11,23 @@ module cordic #(
 
 localparam int G = 4;
 localparam int W = 16 + G;
-localparam [16*17-1:0] ATAN_LUT = {
-    17'h00001,
-    17'h00002,
-    17'h00004,
-    17'h00008,
-    17'h00010,
-    17'h00020,
-    17'h00040,
-    17'h00080,
-    17'h00100,
-    17'h00200,
-    17'h00400,
-    17'h007FD,
-    17'h00FEB,
-    17'h01F5C,
-    17'h03B59,
-    17'h06488
+localparam [255:0] ATAN_LUT = {
+    16'h0001,
+    16'h0001,
+    16'h0002,
+    16'h0004,
+    16'h0008,
+    16'h0010,
+    16'h0020,
+    16'h0040,
+    16'h0080,
+    16'h0100,
+    16'h0200,
+    16'h03FF,
+    16'h07F5,
+    16'h0FAE,
+    16'h1DAC,
+    16'h3244
 };
 localparam [W-1:0] SQRT_C_DIR = W'(16'h1000) << G;
 localparam [W-1:0] SQRT_C_POS = W'(16'h0020) << G;
@@ -44,13 +44,13 @@ reg [4:0] j;
 reg [4:0] iteration;
 reg signed [W-1:0] x, y;
 reg signed [W-1:0] x_next, y_next;
-reg signed [16:0] z, z_next;
+reg signed [15:0] z, z_next;
 reg signed [W-1:0] negative_x, negative_y;
 reg signed [W-1:0] x_shifted, y_shifted;
 reg x_subtract, y_subtract;
 reg z_subtract;
-reg [16:0] one_shifted;
-reg [16:0] z_sum;
+reg [15:0] one_shifted;
+reg [15:0] z_sum;
 reg repeated;
 wire start;
 reg [3:0] k, l, shift_diff, shift_next, shift_q, shift_base;
@@ -210,7 +210,7 @@ always @(*) begin
         end
     end else if (current_state == REVERT) begin
         if (opcode == 2'b00) begin
-            sh_in = {z, {(G - 1){1'b0}}};
+            sh_in = {z, {G{1'b0}}};
             sh_amt = {1'b0, shift_q};
             sh_left = 1'b1;
         end else begin
@@ -224,11 +224,11 @@ always @(*) begin
     for (int i = 0; i < W; i++)
         sh_out[i] = sh_left ? sh_r[W-1-i] : sh_r[i];
 
-    one_shifted = (17'h08000 >>> iteration);
+    one_shifted = (16'h4000 >>> iteration);
     if (current_state == LOOP)
-        z_subtract = (opcode == 2'b10) ? ~z[16] : y[W-1];
-    z_sum = z + z_subtract + (((current_state == LOOP) ? (opcode[1] ? ATAN_LUT[iteration[3:0]*17 +: 17] : one_shifted)
-                                                       : (z[16] ? 17'h19220 : 17'h06DE0)) ^ {17{z_subtract}});
+        z_subtract = (opcode == 2'b10) ? ~z[15] : y[W-1];
+    z_sum = z + z_subtract + (((current_state == LOOP) ? (opcode[1] ? ATAN_LUT[{iteration[3:0], 4'b0} +: 16] : one_shifted)
+                                                       : (z[15] ? 16'hC910 : 16'h36F0)) ^ {16{z_subtract}});
 
     case(current_state)
         IDLE:
@@ -242,7 +242,7 @@ always @(*) begin
             end else if (opcode == 2'b10) begin
                 x_next = {fu.req_op1, {G{1'b0}}};
                 y_next = '0;
-                z_next = {fu.req_op2, 1'b0};
+                z_next = fu.req_op2;
             end else if (opcode == 2'b11) begin
                 x_next = {fu.req_op1, {G{1'b0}}};
                 y_next = {fu.req_op2, {G{1'b0}}};
@@ -270,7 +270,7 @@ always @(*) begin
                     end
                 end
             end else if (opcode == 2'b10) begin
-                angle_shift = (z > 17'sh0DF24 || z < 17'sh120DC);
+                angle_shift = (z > 16'sh6F92 || z < 16'sh906E);
                 if (angle_shift)
                     z_next = z_sum;
             end else if (opcode == 2'b11) begin
@@ -292,8 +292,8 @@ always @(*) begin
         begin
             x_shifted = sh_out;
             y_shifted = ((opcode == 2'b01) ? ym : y) >>> iteration;
-            y_subtract = (opcode == 2'b10) ? z[16] : ~y[W-1];
-            x_subtract = (opcode == 2'b01) ? 1'b1 : (opcode[0] ? y[W-1] : ~z[16]);
+            y_subtract = (opcode == 2'b10) ? z[15] : ~y[W-1];
+            x_subtract = (opcode == 2'b01) ? 1'b1 : (opcode[0] ? y[W-1] : ~z[15]);
             x_next = (opcode == 2'b00)? x : (x + (y_shifted ^ {W{x_subtract}}) + x_subtract);
             y_next = y + (x_shifted ^ {W{y_subtract}}) + y_subtract;
             z_next = z_sum;
@@ -301,10 +301,10 @@ always @(*) begin
         REVERT:
         begin
             if (opcode ==  2'b00) begin
-                if (|((z ^ {17{z[16]}}) & (17'h1FFFF << (5'd16 - shift_q))))
-                    z_next = z[16] ? 17'h10000 : 17'h0FFFF;
+                if (|((z ^ {16{z[15]}}) & (16'hFFFF << (4'd15 - shift_q))))
+                    z_next = z[15] ? 16'h8000 : 16'h7FFF;
                 else
-                    z_next = sh_out[W-1:G-1];
+                    z_next = sh_out[W-1:G];
             end else if (opcode == 2'b10) begin
                 x_next = angle_shift_q ? negative_x : x;
             end else if (opcode == 2'b01) begin
@@ -332,10 +332,7 @@ always @(*) begin
                     postscale_result = postscale_product[W+13:W-2] + postscale_product[W-3];
                 fu.resp_result = postscale_result;
             end else begin
-                if (~z[16] & (&z[15:0]))
-                    fu.resp_result = 16'h7FFF;
-                else
-                    fu.resp_result = z[16:1] + z[0];
+                fu.resp_result = z;
             end
 
             fu.resp_done = 1'b1;
