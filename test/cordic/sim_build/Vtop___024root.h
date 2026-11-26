@@ -102,6 +102,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vtop___024root final {
         IData/*30:0*/ tt_um_cordic__DOT__u_cordic__DOT__postscale_product;
         IData/*31:0*/ tt_um_cordic__DOT__u_cordic__DOT__unnamedblk1__DOT__i;
         IData/*31:0*/ tt_um_cordic__DOT__u_cordic__DOT__unnamedblk2__DOT__i;
+        IData/*31:0*/ tt_um_cordic__DOT__u_cordic__DOT__unnamedblk3__DOT__i;
         VlUnpacked<QData/*63:0*/, 1> __VstlTriggered;
         VlUnpacked<QData/*63:0*/, 1> __VicoTriggered;
         VlUnpacked<QData/*63:0*/, 1> __VactTriggered;

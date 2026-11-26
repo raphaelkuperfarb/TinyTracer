@@ -384,6 +384,7 @@ VL_ATTR_COLD void Vtop___024root___ctor_var_reset(Vtop___024root* vlSelf) {
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__format = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 655247897360982197ull);
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__unnamedblk1__DOT__i = 0;
     vlSelf->tt_um_cordic__DOT__u_cordic__DOT__unnamedblk2__DOT__i = 0;
+    vlSelf->tt_um_cordic__DOT__u_cordic__DOT__unnamedblk3__DOT__i = 0;
     for (int __Vi0 = 0; __Vi0 < 1; ++__Vi0) {
         vlSelf->__VstlTriggered[__Vi0] = 0;
     }
