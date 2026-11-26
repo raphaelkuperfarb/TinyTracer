@@ -221,44 +221,28 @@ VL_ATTR_COLD void Vtop___024root___stl_sequent__TOP__0(Vtop___024root* vlSelf) {
                                 vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__postscale_result 
                                     = (0x0000ffffU 
                                        & ((3U == (IData)(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__opcode))
-                                           ? ((IData)(
-                                                      ((0U 
-                                                        != 
-                                                        (0x78000000U 
-                                                         & vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__postscale_product)) 
-                                                       | (0x0000ffffU 
-                                                          == 
-                                                          (0x0000ffffU 
-                                                           & (vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__postscale_product 
-                                                              >> 0x0bU)))))
+                                           ? ((0U != 
+                                               (0x0000000fU 
+                                                & (vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__postscale_product 
+                                                   >> 0x1bU)))
                                                ? 0x7fffU
-                                               : ((vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__postscale_product 
-                                                   >> 0x0cU) 
-                                                  + 
-                                                  (1U 
-                                                   & (vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__postscale_product 
-                                                      >> 0x0bU))))
-                                           : ((1U & 
-                                               (((~ 
-                                                  ((IData)(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__opcode) 
-                                                   >> 1U)) 
-                                                 & (IData)(
-                                                           (0U 
-                                                            != 
-                                                            (0x60000000U 
-                                                             & vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__postscale_product)))) 
-                                                | (IData)(
-                                                          (0x1fffe000U 
-                                                           == 
-                                                           (0x3fffe000U 
-                                                            & vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__postscale_product)))))
+                                               : (vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__postscale_product 
+                                                  >> 0x0cU))
+                                           : ((IData)(
+                                                      ((~ 
+                                                        ((IData)(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__opcode) 
+                                                         >> 1U)) 
+                                                       & (0U 
+                                                          != 
+                                                          (0x60000000U 
+                                                           & vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__postscale_product))))
                                                ? 0x7fffU
-                                               : ((vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__postscale_product 
-                                                   >> 0x0eU) 
-                                                  + 
-                                                  (1U 
-                                                   & (vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__postscale_product 
-                                                      >> 0x0dU))))));
+                                               : (vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__postscale_product 
+                                                  >> 0x0eU))));
+                                if (((1U == (IData)(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__opcode)) 
+                                     & (IData)(vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__angle_shift_q))) {
+                                    vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__postscale_result = 0U;
+                                }
                                 vlSymsp->TOP__tt_um_cordic__DOT__fu.resp_result 
                                     = vlSelfRef.tt_um_cordic__DOT__u_cordic__DOT__postscale_result;
                             } else {

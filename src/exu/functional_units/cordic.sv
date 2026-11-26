@@ -321,15 +321,14 @@ always @(*) begin
                                   + (opcode[1] ? (postscale_x <<< 2) : (postscale_x <<< 7));
                 if (opcode == 2'b11) begin
                     // mag: result x 4 (inputs were quartered), never negative
-                    if ((|postscale_product[30:27]) | (&postscale_product[26:11]))
+                    if (|postscale_product[30:27])
                         postscale_result = 16'h7FFF;
                     else
-                        postscale_result = postscale_product[27:12] + postscale_product[11];
-                end else if ((~opcode[1] & (postscale_product[30] | postscale_product[29]))
-                    | (~postscale_product[29] & (&postscale_product[28:13])))
+                        postscale_result = postscale_product[27:12];
+                end else if (~opcode[1] & (postscale_product[30] | postscale_product[29]))
                     postscale_result = 16'h7FFF;
                 else
-                    postscale_result = postscale_product[29:14] + postscale_product[13];
+                    postscale_result = postscale_product[29:14];
                 if (opcode == 2'b01 && angle_shift_q)
                     postscale_result = 16'b0;
                 fu.resp_result = postscale_result;
