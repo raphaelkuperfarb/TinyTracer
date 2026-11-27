@@ -13,4 +13,7 @@ MODULE = test_cordic
 COMPILE_ARGS += -I$(SRC_DIR)
 EXTRA_ARGS += --timing --trace -Wno-fatal
 
+# reference_models (e.g. cordic_ref) lives in test/, one level up.
+export PYTHONPATH := $(abspath ..):$(PYTHONPATH)
+
 include $(shell cocotb-config --makefiles)/Makefile.sim
